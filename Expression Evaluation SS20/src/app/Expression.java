@@ -178,7 +178,7 @@ public class Expression {
                 break;
             case "-":
                 a = Float.parseFloat(varStack.pop());
-                b = Float.parseFloat(varStack.pop()); 
+                b = Float.parseFloat(varStack.pop());
                 newNum = a - b + "";
                 break;
             case "*":
@@ -188,11 +188,12 @@ public class Expression {
                 break;
             case "/":
                 b = Float.parseFloat(varStack.pop());
-                a = Float.parseFloat(varStack.pop()); 
+                a = Float.parseFloat(varStack.pop());
                 newNum = a / b + "";
                 break;
             default:
                 newNum = "";
+                break;
         }
         
     	return newNum;
