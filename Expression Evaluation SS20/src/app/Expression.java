@@ -119,7 +119,7 @@ public class Expression {
                 operands = reverse(operands);
 
                 while(!operands.isEmpty()) {
-                    varStack.push(calculate(varStack, operands));
+                    calculate(varStack, operands);
                 }
                 
                 return varStack.peek();
@@ -139,7 +139,7 @@ public class Expression {
             }
 
             if(varStack.size() != 1 && !operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) {
-                varStack.push(calculate(varStack, operands));
+                calculate(varStack, operands);
             }
         }
 
@@ -147,7 +147,7 @@ public class Expression {
         operands = reverse(operands);
 
         while(!operands.isEmpty()) {
-            varStack.push(calculate(varStack, operands));
+            calculate(varStack, operands);
         }
 
         return varStack.peek();
@@ -164,11 +164,10 @@ public class Expression {
         return finalStack;
     }
 
-    private static String calculate(Stack<String> varStack, Stack<String> operands) {
+    private static void calculate(Stack<String> varStack, Stack<String> operands) {
 
         String newNum;
-        float a = 0;
-        float b = 0;
+        float a, b;
 
         switch(operands.pop()) {
             case "+":
@@ -196,6 +195,6 @@ public class Expression {
                 break;
         }
         
-    	return newNum;
+    	varStack.push(newNum);
     }
 }
