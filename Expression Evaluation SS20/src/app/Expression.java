@@ -23,8 +23,8 @@ public class Expression {
      */
     public static void 
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        expr = expr.replaceAll("\\s+","");
-    	StringTokenizer varis = new StringTokenizer(expr, delims);
+        String exprNoSpace = expr.replaceAll("\\s+","");
+    	StringTokenizer varis = new StringTokenizer(exprNoSpace, delims);
         while(varis.hasMoreTokens()) {
             String temp = varis.nextToken();
             boolean noDuplicate = false;
@@ -90,8 +90,8 @@ public class Expression {
     public static float 
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
 
-        expr = expr.replaceAll("\\s+","");
-        String[] newString = expr.split("(?<=[-+*/()])|(?=[-+*/()])");
+        String exprNoSpace = expr.replaceAll("\\s+","");
+        String[] newString = exprNoSpace.split("(?<=[-+*/()])|(?=[-+*/()])");
         Stack<String> allStack = new Stack<String>();
 
         for(int i = newString.length; i > 0; i--) {
