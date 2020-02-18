@@ -24,16 +24,20 @@ public class Expression {
     public static void 
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         String exprNoSpace = expr.replaceAll("\\s+","");
-    	StringTokenizer varis = new StringTokenizer(exprNoSpace, delims);
+        StringTokenizer varis = new StringTokenizer(exprNoSpace, delims);
+        String temp;
+
         while(varis.hasMoreTokens()) {
-            String temp = varis.nextToken();
+            temp = varis.nextToken();
             boolean noDuplicate = false;
+
             for(int i = 0; i < vars.size(); i++) {
                 if(temp == vars.get(i).name) {
                     noDuplicate = true;
                     break;
                 }
             }
+
             if(noDuplicate == false) {
                 vars.add(new Variable(temp));
             }
@@ -89,7 +93,6 @@ public class Expression {
      */
     public static float 
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-
         String exprNoSpace = expr.replaceAll("\\s+","");
         String[] newString = exprNoSpace.split("(?<=[-+*/()])|(?=[-+*/()])");
         Stack<String> allStack = new Stack<String>();
@@ -104,7 +107,6 @@ public class Expression {
     }
 
     private static String recurse(Stack<String> allStack, ArrayList<Variable> vars) {
-
         Stack<String> varStack = new Stack<String>();
         Stack<String> operands = new Stack<String>();
         String crnt;
@@ -154,7 +156,6 @@ public class Expression {
     }
 
     private static Stack<String> reverse(Stack<String> stack) {
-
         Stack<String> finalStack = new Stack<String>();
 
         while(!stack.isEmpty()) {
@@ -165,7 +166,6 @@ public class Expression {
     }
 
     private static void calculate(Stack<String> varStack, Stack<String> operands) {
-
         String newNum;
         float a, b;
 
