@@ -111,7 +111,7 @@ public class Polynomial {
 	 */
 	public static Node multiply(Node poly1, Node poly2) {
 
-		Node nullInput = new Node(0, 0, null);
+		Node nullInput = null;
 		if(poly1 == null || poly2 == null) {
 			return nullInput;
 		}
