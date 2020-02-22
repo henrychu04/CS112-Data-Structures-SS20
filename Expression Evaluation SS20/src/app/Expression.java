@@ -24,22 +24,54 @@ public class Expression {
     public static void 
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         String exprNoSpace = expr.replaceAll("\\s+","");
-        StringTokenizer varis = new StringTokenizer(exprNoSpace, delims);
+        String[] varis = exprNoSpace.split("(?<=[-+*/()])|(?=[-+*/()])");
+        List<String> varisList = new ArrayList<String>(Arrays.asList(varis));
         String temp;
 
-        while(varis.hasMoreTokens()) {
-            temp = varis.nextToken();
-            boolean noDuplicate = false;
-
-            for(int i = 0; i < vars.size(); i++) {
-                if(temp == vars.get(i).name) {
-                    noDuplicate = true;
-                    break;
+        for(int i = 0; i < varisList.size(); i++) {
+            temp = varisList.get(i);
+            if(temp.contains("[")) {
+                varisList.remove(i);
+                String[] bracketSplit = temp.split("(?<=\\[)");
+                
+                for(int j = 0; j < bracketSplit.length; j++) {
+                    if(varisList.isEmpty()) {
+                        varisList.add(bracketSplit[j]);
+                    } else {
+                        varisList.add(i + j, bracketSplit[j]);
+                    }
                 }
             }
+        }
 
-            if(noDuplicate == false) {
-                vars.add(new Variable(temp));
+        for(int i = 0; i < varisList.size(); i++) {
+            temp = varisList.get(i);
+            if(!Character.isLetter(temp.charAt(0))) {
+                continue;
+            } else {
+                boolean noDuplicate = false;
+                if(temp.contains("[")) {
+                    temp = temp.replace("[", "");
+                    for(int j = 0; j < arrays.size(); j++) {
+                        if(temp.equals(arrays.get(j).name)) {
+                            noDuplicate = true;
+                            break;
+                        }
+                    }
+                    if(noDuplicate == false) {
+                        arrays.add(new Array(temp));
+                    }
+                } else {
+                    for(int j = 0; j < vars.size(); j++) {
+                        if(temp.equals(vars.get(j).name)) {
+                            noDuplicate = true;
+                            break;
+                        }
+                    }
+                    if(noDuplicate == false) {
+                        vars.add(new Variable(temp));
+                    }
+                }
             }
         }
     }
@@ -95,18 +127,37 @@ public class Expression {
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         String exprNoSpace = expr.replaceAll("\\s+","");
         String[] newString = exprNoSpace.split("(?<=[-+*/()])|(?=[-+*/()])");
+        List<String> stringList = new ArrayList<String>(Arrays.asList(newString));
         Stack<String> allStack = new Stack<String>();
 
-        for(int i = newString.length; i > 0; i--) {
-            allStack.push(newString[i-1]);
+        for(int i = 0; i < stringList.size(); i++) {
+            if(stringList.get(i).contains("[")) {
+                String[] bracketSplit = stringList.get(i).split("(?<=\\[)");
+
+                for(int j = 0; j < bracketSplit.length; j++) {
+                    if(stringList.isEmpty()) {
+                        stringList.add(bracketSplit[j]);
+                    } else {
+                        stringList.add(i, bracketSplit[j]);
+                        i++;
+                    }
+                    if(j == bracketSplit.length - 1) {
+                        stringList.remove(i);
+                    }
+                }
+            }
         }
 
-        String numString = recurse(allStack, vars);
+        for(int i = stringList.size(); i > 0; i--) {
+            allStack.push(stringList.get(i-1));
+        }
+
+        String numString = recurse(allStack, vars, arrays);
         
         return Float.parseFloat(numString);
     }
 
-    private static String recurse(Stack<String> allStack, ArrayList<Variable> vars) {
+    private static String recurse(Stack<String> allStack, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         Stack<String> varStack = new Stack<String>();
         Stack<String> operands = new Stack<String>();
         String crnt;
@@ -114,20 +165,23 @@ public class Expression {
         while(!allStack.isEmpty()) {
             crnt = allStack.pop();
 
-            if(crnt.equals("(")) {
-                varStack.push(recurse(allStack, vars));
-            } else if(crnt.equals(")")) {
-                varStack = reverse(varStack);
-                operands = reverse(operands);
-
-                while(!operands.isEmpty()) {
-                    calculate(varStack, operands);
+            if(crnt.contains("[")) {
+                String index = recurse(allStack, vars, arrays) + "";
+                String arrayName = crnt.replace("[", "");
+                for(int i = 0; i < arrays.size(); i++) {
+                    if(arrayName.equals(arrays.get(i).name)) {
+                        varStack.push(arrays.get(i).values[(int)Float.parseFloat(index)] + "");
+                        break;
+                    }
                 }
-                
-                return varStack.peek();
-            }
-
-            if(Character.isDigit(crnt.charAt(0))) {
+            } else if(crnt.contains("]")) {
+                varStack.push(crnt.replace("]", ""));
+                return reverseAndCalculate(varStack, operands);
+            } else if(crnt.equals("(")) {
+                varStack.push(recurse(allStack, vars, arrays));
+            } else if(crnt.equals(")")) {                
+                return reverseAndCalculate(varStack, operands);
+            } else if(Character.isDigit(crnt.charAt(0))) {
                 varStack.push(crnt);
             } else if(Character.isLetter(crnt.charAt(0)) && !crnt.equals("(") && !crnt.equals(")")) {
                 for(int i = 0; i < vars.size(); i++) {
@@ -145,24 +199,25 @@ public class Expression {
             }
         }
 
-        varStack = reverse(varStack);
-        operands = reverse(operands);
-
-        while(!operands.isEmpty()) {
-            calculate(varStack, operands);
-        }
-
-        return varStack.peek();
+        return reverseAndCalculate(varStack, operands);
     }
 
-    private static Stack<String> reverse(Stack<String> stack) {
-        Stack<String> finalStack = new Stack<String>();
+    private static String reverseAndCalculate(Stack<String> varStack, Stack<String> operands) {
+        Stack<String> reversedVarStack = new Stack<String>();
+        Stack<String> reversedOperands = new Stack<String>();
 
-        while(!stack.isEmpty()) {
-            finalStack.push(stack.pop());
+        while(!varStack.isEmpty()) {
+            reversedVarStack.push(varStack.pop());
+        }
+        while(!operands.isEmpty()) {
+            reversedOperands.push(operands.pop());
         }
 
-        return finalStack;
+        while(!reversedOperands.isEmpty()) {
+            calculate(reversedVarStack, reversedOperands);
+        }
+
+        return reversedVarStack.peek();
     }
 
     private static void calculate(Stack<String> varStack, Stack<String> operands) {

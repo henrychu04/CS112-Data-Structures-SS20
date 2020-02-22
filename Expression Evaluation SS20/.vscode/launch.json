@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - Evaluator",
+            "request": "launch",
+            "mainClass": "app.Evaluator",
+            "projectName": "Expression Evaluation SS20_2faf4a74"
+        },
+        {
+            "type": "java",
             "name": "Debug (Launch) - Current File",
             "request": "launch",
             "mainClass": "${file}"
