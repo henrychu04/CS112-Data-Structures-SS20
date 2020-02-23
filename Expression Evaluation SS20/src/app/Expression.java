@@ -120,29 +120,6 @@ public class Expression {
         List<String> stringList = new ArrayList<String>(Arrays.asList(newString));
         Stack<String> allStack = new Stack<String>();
 
-        for(int i = 0; i < stringList.size(); i++) {
-            System.out.println("crnt is " + stringList.get(i));
-        }
-
-        for(int i = 0; i < stringList.size(); i++) {
-            if(stringList.get(i).contains("[")) {
-                String[] bracketSplit = stringList.get(i).split("(?<=\\[)");
-
-                for(int j = 0; j < bracketSplit.length; j++) {
-                    if(stringList.isEmpty()) {
-                        stringList.add(bracketSplit[j]);
-                    } else {
-                        stringList.add(i, bracketSplit[j]);
-                        i++;
-                    }
-
-                    if(j == bracketSplit.length - 1) {
-                        stringList.remove(i);
-                    }
-                }
-            }
-        }
-
         for(int i = stringList.size(); i > 0; i--) {
             allStack.push(stringList.get(i-1));
         }
