@@ -30,6 +30,7 @@ public class Expression {
 
         for(int i = 0; i < varisList.size(); i++) {
             temp = varisList.get(i);
+
             if(temp.contains("[")) {
                 varisList.remove(i);
                 String[] bracketSplit = temp.split("(?<=\\[)");
@@ -46,20 +47,37 @@ public class Expression {
 
         for(int i = 0; i < varisList.size(); i++) {
             temp = varisList.get(i);
+
             if(!Character.isLetter(temp.charAt(0))) {
                 continue;
             } else {
                 boolean noDuplicate = false;
+
                 if(temp.contains("[")) {
                     temp = temp.replace("[", "");
+
                     for(int j = 0; j < arrays.size(); j++) {
                         if(temp.equals(arrays.get(j).name)) {
                             noDuplicate = true;
                             break;
                         }
                     }
+
                     if(noDuplicate == false) {
                         arrays.add(new Array(temp));
+                    }
+                } else if(temp.contains("]")) {
+                    temp = temp.replace("]", "");
+
+                    for(int j = 0; j < vars.size(); j++) {
+                        if(temp.equals(vars.get(j).name)) {
+                            noDuplicate = true;
+                            break;
+                        }
+                    }
+
+                    if(noDuplicate == false) {
+                        vars.add(new Variable(temp));
                     }
                 } else {
                     for(int j = 0; j < vars.size(); j++) {
@@ -68,6 +86,7 @@ public class Expression {
                             break;
                         }
                     }
+
                     if(noDuplicate == false) {
                         vars.add(new Variable(temp));
                     }
@@ -126,9 +145,13 @@ public class Expression {
     public static float 
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         String exprNoSpace = expr.replaceAll("\\s+","");
-        String[] newString = exprNoSpace.split("(?<=[-+*/()])|(?=[-+*/()])");
+        String[] newString = exprNoSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
         List<String> stringList = new ArrayList<String>(Arrays.asList(newString));
         Stack<String> allStack = new Stack<String>();
+
+        for(int i = 0; i < stringList.size(); i++) {
+            System.out.println("crnt is " + stringList.get(i));
+        }
 
         for(int i = 0; i < stringList.size(); i++) {
             if(stringList.get(i).contains("[")) {
@@ -141,6 +164,7 @@ public class Expression {
                         stringList.add(i, bracketSplit[j]);
                         i++;
                     }
+
                     if(j == bracketSplit.length - 1) {
                         stringList.remove(i);
                     }
@@ -168,6 +192,7 @@ public class Expression {
             if(crnt.contains("[")) {
                 String index = recurse(allStack, vars, arrays) + "";
                 String arrayName = crnt.replace("[", "");
+                
                 for(int i = 0; i < arrays.size(); i++) {
                     if(arrayName.equals(arrays.get(i).name)) {
                         varStack.push(arrays.get(i).values[(int)Float.parseFloat(index)] + "");
@@ -175,7 +200,6 @@ public class Expression {
                     }
                 }
             } else if(crnt.contains("]")) {
-                varStack.push(crnt.replace("]", ""));
                 return reverseAndCalculate(varStack, operands);
             } else if(crnt.equals("(")) {
                 varStack.push(recurse(allStack, vars, arrays));

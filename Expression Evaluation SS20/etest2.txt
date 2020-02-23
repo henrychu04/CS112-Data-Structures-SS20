@@ -2,4 +2,4 @@ varx 6
 vary 5
 arrayA 10 (3,5) (8,12) (9,1)
 aa 4
-aa 4 (1,1)
+bb 3
