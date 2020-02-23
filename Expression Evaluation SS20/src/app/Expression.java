@@ -23,13 +23,11 @@ public class Expression {
      */
     public static void 
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        String exprNoSpace = expr.replaceAll("\\s+","");
-        String[] varis = exprNoSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
-        List<String> varisList = new ArrayList<String>(Arrays.asList(varis));
-        String temp;
+        String delimiters = "(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])";
+        ArrayList<String> varisList = new ArrayList<String>(Arrays.asList(expr.replaceAll("\\s+","").split(delimiters)));
 
         for(int i = 0; i < varisList.size(); i++) {
-            temp = varisList.get(i);
+            String temp = varisList.get(i);
 
             if(!Character.isLetter(temp.charAt(0))) {
                 continue;
@@ -114,9 +112,8 @@ public class Expression {
      */
     public static float 
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        String exprNoSpace = expr.replaceAll("\\s+","");
-        String[] newString = exprNoSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
-        List<String> stringList = new ArrayList<String>(Arrays.asList(newString));
+        String delimiters = "(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])";
+        ArrayList<String> stringList = new ArrayList<String>(Arrays.asList(expr.replaceAll("\\s+","").split(delimiters)));
         Stack<String> allStack = new Stack<String>();
 
         for(int i = stringList.size(); i > 0; i--) {
@@ -131,10 +128,9 @@ public class Expression {
     private static String recurse(Stack<String> allStack, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         Stack<String> varStack = new Stack<String>();
         Stack<String> operands = new Stack<String>();
-        String crnt;
 
         while(!allStack.isEmpty()) {
-            crnt = allStack.pop();
+            String crnt = allStack.pop();
 
             if(crnt.contains("[")) {
                 String index = recurse(allStack, vars, arrays) + "";
