@@ -157,7 +157,7 @@ public class Expression {
                         break;
                     }
                 }
-            } else if(!crnt.equals("(") && !crnt.equals(")")){
+            } else if(!crnt.equals("(") && !crnt.equals(")")) {
                 operands.push(crnt);
             }
 
