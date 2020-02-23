@@ -24,28 +24,12 @@ public class Expression {
     public static void 
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         String exprNoSpace = expr.replaceAll("\\s+","");
-        String[] varis = exprNoSpace.split("(?<=[-+*/()])|(?=[-+*/()])");
+        String[] varis = exprNoSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
         List<String> varisList = new ArrayList<String>(Arrays.asList(varis));
         String temp;
 
         for(int i = 0; i < varisList.size(); i++) {
-            temp = varisList.get(i);
-
-            if(temp.contains("[")) {
-                varisList.remove(i);
-                String[] bracketSplit = temp.split("(?<=\\[)");
-                
-                for(int j = 0; j < bracketSplit.length; j++) {
-                    if(varisList.isEmpty()) {
-                        varisList.add(bracketSplit[j]);
-                    } else {
-                        varisList.add(i + j, bracketSplit[j]);
-                    }
-                }
-            }
-        }
-
-        for(int i = 0; i < varisList.size(); i++) {
+            System.out.println("this is " + varisList.get(i));
             temp = varisList.get(i);
 
             if(!Character.isLetter(temp.charAt(0))) {
@@ -65,19 +49,6 @@ public class Expression {
 
                     if(noDuplicate == false) {
                         arrays.add(new Array(temp));
-                    }
-                } else if(temp.contains("]")) {
-                    temp = temp.replace("]", "");
-
-                    for(int j = 0; j < vars.size(); j++) {
-                        if(temp.equals(vars.get(j).name)) {
-                            noDuplicate = true;
-                            break;
-                        }
-                    }
-
-                    if(noDuplicate == false) {
-                        vars.add(new Variable(temp));
                     }
                 } else {
                     for(int j = 0; j < vars.size(); j++) {
@@ -192,7 +163,7 @@ public class Expression {
             if(crnt.contains("[")) {
                 String index = recurse(allStack, vars, arrays) + "";
                 String arrayName = crnt.replace("[", "");
-                
+
                 for(int i = 0; i < arrays.size(); i++) {
                     if(arrayName.equals(arrays.get(i).name)) {
                         varStack.push(arrays.get(i).values[(int)Float.parseFloat(index)] + "");
