@@ -29,7 +29,6 @@ public class Expression {
         String temp;
 
         for(int i = 0; i < varisList.size(); i++) {
-            System.out.println("this is " + varisList.get(i));
             temp = varisList.get(i);
 
             if(!Character.isLetter(temp.charAt(0))) {
@@ -147,7 +146,7 @@ public class Expression {
                         break;
                     }
                 }
-            } else if(crnt.contains("]")) {
+            } else if(crnt.equals("]")) {
                 return reverseAndCalculate(varStack, operands);
             } else if(crnt.equals("(")) {
                 varStack.push(recurse(allStack, vars, arrays));
