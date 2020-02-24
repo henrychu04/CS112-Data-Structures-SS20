@@ -23,9 +23,8 @@ public class Expression {
      */
     public static void 
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        String delimiters = "(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])";
         String noSpace = expr.replaceAll("\\s+","");
-        String[] asArray = noSpace.split(delimiters);
+        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
 
         for(int i = 0; i < asArray.length; i++) {
             String temp = asArray[i];
@@ -113,9 +112,8 @@ public class Expression {
      */
     public static float 
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        String delimiters = "(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])";
         String noSpace = expr.replaceAll("\\s+","");
-        String[] asArray = noSpace.split(delimiters);
+        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
         Stack<String> allStack = new Stack<String>();
 
         for(int i = asArray.length; i > 0; i--) {
