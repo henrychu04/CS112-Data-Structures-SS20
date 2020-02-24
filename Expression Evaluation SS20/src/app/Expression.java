@@ -26,10 +26,9 @@ public class Expression {
         String delimiters = "(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])";
         String noSpace = expr.replaceAll("\\s+","");
         String[] asArray = noSpace.split(delimiters);
-        ArrayList<String> asList = new ArrayList<String>(Arrays.asList(asArray));
 
-        for(int i = 0; i < asList.size(); i++) {
-            String temp = asList.get(i);
+        for(int i = 0; i < asArray.length; i++) {
+            String temp = asArray[i];
 
             if(!Character.isLetter(temp.charAt(0))) {
                 continue;
@@ -117,11 +116,10 @@ public class Expression {
         String delimiters = "(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])";
         String noSpace = expr.replaceAll("\\s+","");
         String[] asArray = noSpace.split(delimiters);
-        ArrayList<String> asList = new ArrayList<String>(Arrays.asList(asArray));
         Stack<String> allStack = new Stack<String>();
 
-        for(int i = asList.size(); i > 0; i--) {
-            allStack.push(asList.get(i-1));
+        for(int i = asArray.length; i > 0; i--) {
+            allStack.push(asArray[i - 1]);
         }
 
         String numString = recurse(allStack, vars, arrays);
