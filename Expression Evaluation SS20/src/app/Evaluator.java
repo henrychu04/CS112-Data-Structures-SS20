@@ -7,6 +7,8 @@ import java.util.Scanner;
 
 public class Evaluator {
 
+	// Move one of the Expression files into the app folder and rename it as "Expression".
+
 	/**
 	 * @param args
 	 */

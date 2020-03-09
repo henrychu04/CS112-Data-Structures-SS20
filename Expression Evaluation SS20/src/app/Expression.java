@@ -111,150 +111,101 @@ public class Expression {
      * @return Result of evaluation
      */
     public static float 
-    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Substring method
-        String noSpace = expr.replaceAll("\\s", "");
-        Stack<String> varStack = new Stack<String>();
+    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Shunting Yard Algorithm
+        // Does not work currently
+        String noSpace = expr.replaceAll("\\s+","");
+        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
         Stack<String> operands = new Stack<String>();
-        
-        for(int i = 0; i < noSpace.length(); i++) {
-            String temp = "";
+        Stack<String> output = new Stack<String>();
 
-            if(noSpace.charAt(i) == '(') {
-                int closed = findClosing(noSpace, '(', ')', i);
+        for(int i = 0; i < asArray.length; i++) {
+            String crnt = asArray[i];
 
-                varStack.push(evaluate(noSpace.substring(i + 1, closed), vars, arrays) + "");
-
-                i = closed;
-            } else if(noSpace.charAt(i) == ')') {
-                return Float.parseFloat(reverseAndCalculate(varStack, operands));
-            } else if(noSpace.charAt(i) == ']') {
-                return Float.parseFloat(reverseAndCalculate(varStack,operands));
-            } else if(Character.isLetter(noSpace.charAt(i))) {
-                while(Character.isLetter(noSpace.charAt(i))) {
-                    temp += noSpace.charAt(i) + "";
-                    i++;
-
-                    if(i == noSpace.length()) {
-                        break;
-                    }
+            if(Character.isDigit(crnt.charAt(0))) {
+                output.push(crnt);
+            } else if(crnt.equals("+") || crnt.equals("-") || crnt.equals("*") || crnt.equals("/")) {
+                if(!operands.isEmpty() && givePrecedence(operands.peek()) == givePrecedence(crnt)) {
+                    output.push(operands.pop());
                 }
-
-                i--;
                 
-                if(i + 1 < noSpace.length() && noSpace.charAt(i + 1) == '[') {
-                    i++;
-
-                    int closed = findClosing(noSpace, '[', ']', i);
-
-                    int index = (int)evaluate(noSpace.substring(i + 1, closed), vars, arrays);
-
-                    for(int k = 0; k < arrays.size(); k++) {
-                        if(temp.equals(arrays.get(k).name)) {
-                            varStack.push(arrays.get(k).values[index] + "");
-                            break;
-                        }
-                    }
-
-                    i = closed;
-                } else {
-                    for(int j = 0; j < vars.size(); j++) {
-                        if(temp.equals(vars.get(j).name)) {
-                            varStack.push(vars.get(j).value + "");
-                            break;
-                        }
-                    }
-                }
-            } else if(Character.isDigit(noSpace.charAt(i))) {
-                while(Character.isDigit(noSpace.charAt(i))) {
-                    temp += noSpace.charAt(i) + "";
-                    i++;
-                    
-                    if(i == noSpace.length()) {
-                        break;
-                    }
+                while(!operands.isEmpty() && !operands.peek().equals("(") && (givePrecedence(operands.peek()) > givePrecedence(crnt))) {
+                    output.push(operands.pop());
                 }
 
-                i--;
-                
-                varStack.push(temp);
-            } else if(noSpace.charAt(i) == '+' || noSpace.charAt(i) == '-' || noSpace.charAt(i) == '*' || noSpace.charAt(i) == '/') {
-                operands.push(noSpace.charAt(i) + "");
-            }
+                operands.push(crnt);
+            } else if(crnt.equals("(")) {
+                operands.push(crnt);
+            } else if(crnt.equals(")")) {
+                while(!operands.peek().equals("(")) {
+                    output.push(operands.pop());
+                }
 
-            if(!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) {
-                calculate(varStack, operands);
-            }
-        }
-
-        return Float.parseFloat(reverseAndCalculate(varStack, operands));
-    }
-
-    private static int findClosing(String expr, Character open, Character close, int i) {
-        int closing = 0, count = 0;
-
-        for(closing = i; closing < expr.length(); closing++) {
-            if(expr.charAt(closing) == close) {
-                count--;
-            } else if(expr.charAt(closing)== open) {
-                count++;
-            }
-
-            if(count == 0) {
-                break;
+                operands.pop();
             }
         }
 
-        return closing;
-    }
-
-    private static String reverseAndCalculate(Stack<String> varStack, Stack<String> operands) {
-        Stack<String> reversedVarStack = new Stack<String>();
-        Stack<String> reversedOperands = new Stack<String>();
-
-        while(!varStack.isEmpty()) {
-            reversedVarStack.push(varStack.pop());
-        }
         while(!operands.isEmpty()) {
-            reversedOperands.push(operands.pop());
+            output.push(operands.pop());
         }
 
-        while(!reversedOperands.isEmpty()) {
-            calculate(reversedVarStack, reversedOperands);
+        Stack<String> answer = new Stack<String>();
+        Stack<String> reverseOutput = new Stack<String>();
+
+        while(!output.isEmpty()) {
+            reverseOutput.push(output.pop());
         }
 
-        return reversedVarStack.peek();
-    }
+        while(!reverseOutput.isEmpty()) {
+            String crnt = reverseOutput.pop();
 
-    private static void calculate(Stack<String> varStack, Stack<String> operands) {
-        String newNum;
-        float a, b;
+            if(crnt.equals("+") || crnt.equals("-") || crnt.equals("*") || crnt.equals("/")) {
+                Float newNum = 0.f, a, b;
 
-        switch(operands.pop()) {
-            case "+":
-                a = Float.parseFloat(varStack.pop());
-                b = Float.parseFloat(varStack.pop());
-                newNum = a + b + "";
-                break;
-            case "-":
-                a = Float.parseFloat(varStack.pop());
-                b = Float.parseFloat(varStack.pop());
-                newNum = a - b + "";
-                break;
-            case "*":
-                a = Float.parseFloat(varStack.pop());
-                b = Float.parseFloat(varStack.pop());
-                newNum = a * b + "";
-                break;
-            case "/":
-                b = Float.parseFloat(varStack.pop());
-                a = Float.parseFloat(varStack.pop());
-                newNum = a / b + "";
-                break;
-            default:
-                newNum = "";
-                break;
+                switch(crnt) {
+                    case "+":
+                        a = Float.parseFloat(answer.pop());
+                        b = Float.parseFloat(answer.pop());
+                        newNum = a + b;
+                        break;
+                    case "-":
+                        a = Float.parseFloat(answer.pop());
+                        b = Float.parseFloat(answer.pop());
+                        newNum = b - a;
+                        break;
+                    case "*":
+                        a = Float.parseFloat(answer.pop());
+                        b = Float.parseFloat(answer.pop());
+                        newNum = a * b;
+                        break;
+                    case "/":
+                        a = Float.parseFloat(answer.pop());
+                        b = Float.parseFloat(answer.pop());
+                        newNum = b / a;
+                        break;
+                    default:
+                        break;
+                }
+                answer.push(newNum + "");
+            } else {
+                answer.push(crnt);
+            }
         }
         
-    	varStack.push(newNum);
+        return Float.parseFloat(answer.peek());
+    }
+
+    private static int givePrecedence(String operand) {
+        switch(operand) {
+            case "+":
+                return 1;
+            case "-":
+                return 1;
+            case "*":
+                return 5;
+            case "/":
+                return 5;
+            default:
+                return 0;
+        }
     }
 }

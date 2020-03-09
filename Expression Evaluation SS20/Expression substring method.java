@@ -111,62 +111,100 @@ public class Expression {
      * @return Result of evaluation
      */
     public static float 
-    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Split to array method
-        String noSpace = expr.replaceAll("\\s+",""); // removes spaces in the expression
-        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])"); // splits the expression by operands, parenthesis and closing brackets
-        Stack<String> allStack = new Stack<String>();
-
-        for(int i = asArray.length; i > 0; i--) { // pushes each element in the split array into a stack
-            allStack.push(asArray[i - 1]);
-        }
-
-        String numString = recurse(allStack, vars, arrays); // evaulates the stack
-        
-        return Float.parseFloat(numString);
-    }
-
-    private static String recurse(Stack<String> allStack, ArrayList<Variable> vars, ArrayList<Array> arrays) {
+    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Substring method
+        String noSpace = expr.replaceAll("\\s", ""); // remove the spaces in the expression
         Stack<String> varStack = new Stack<String>();
         Stack<String> operands = new Stack<String>();
+        
+        for(int i = 0; i < noSpace.length(); i++) { // iterate through the expression
+            String temp = "";
 
-        while(!allStack.isEmpty()) {
-            String crnt = allStack.pop(); // sets crnt to the top of the stack
+            if(noSpace.charAt(i) == '(') { // checks if current char is an opening parenthesis
+                int closed = findClosing(noSpace, '(', ')', i); // finds closing parenthesis and returns index of it
 
-            if(crnt.contains("[")) { // checks if crnt is an array
-                String index = recurse(allStack, vars, arrays); // evaluates what is inside the opening and closing bracket
-                String arrayName = crnt.replace("[", ""); // removes the opening bracket so what is left if the bracket name
+                varStack.push(evaluate(noSpace.substring(i + 1, closed), vars, arrays) + ""); // recurses inside the opening and closing parenthesis
 
-                for(int i = 0; i < arrays.size(); i++) { // finds the value of the index of the array
-                    if(arrayName.equals(arrays.get(i).name)) {
-                        varStack.push(arrays.get(i).values[(int)Float.parseFloat(index)] + "");
+                i = closed; // sets i to the closed parethesis to skip what is inside since it is already evaluated
+            } else if(noSpace.charAt(i) == ')') {
+                return Float.parseFloat(reverseAndCalculate(varStack, operands)); // if current char is a closing parenthesis calculate and return
+            } else if(noSpace.charAt(i) == ']') {
+                return Float.parseFloat(reverseAndCalculate(varStack, operands)); // if current char is a closing bracket calculate and return
+            } else if(Character.isLetter(noSpace.charAt(i))) {
+                while(Character.isLetter(noSpace.charAt(i))) { // sets temp to variable name
+                    temp += noSpace.charAt(i) + "";
+                    i++;
+
+                    if(i == noSpace.length()) {
                         break;
                     }
                 }
-            } else if(crnt.equals("]")) { // checks if crnt is a closing bracket and evaluates and returns
-                return reverseAndCalculate(varStack, operands);
-            } else if(crnt.equals("(")) {
-                varStack.push(recurse(allStack, vars, arrays)); // checks if crnt is an opening parenthesis and evaulates what is inside
-            } else if(crnt.equals(")")) {
-                return reverseAndCalculate(varStack, operands); // checks if crnt is a closing parenthesis and evaulates and returns
-            } else if(Character.isDigit(crnt.charAt(0))) { // checks if crnt is a number and pushes into the varStack stack
-                varStack.push(crnt);
-            } else if(Character.isLetter(crnt.charAt(0)) && !crnt.equals("(") && !crnt.equals(")")) { // since crnt is already checked to see if it is an array, this checks if it is a variable and pushes the variable value into the varStack stack
-                for(int i = 0; i < vars.size(); i++) {
-                    if(crnt.equals(vars.get(i).name)) {
-                        varStack.push(vars.get(i).value + "");
+
+                i--;
+                
+                if(i + 1 < noSpace.length() && noSpace.charAt(i + 1) == '[') { // checks if the variable name is an array
+                    i++;
+
+                    int closed = findClosing(noSpace, '[', ']', i); // finds closing bracket
+
+                    int index = (int)evaluate(noSpace.substring(i + 1, closed), vars, arrays); // recurses inside the opening and closing bracket
+
+                    for(int k = 0; k < arrays.size(); k++) { // finds the value of the index of the array
+                        if(temp.equals(arrays.get(k).name)) {
+                            varStack.push(arrays.get(k).values[index] + "");
+                            break;
+                        }
+                    }
+
+                    i = closed; // sets i to the closed bracket to skip what is inside since it is already evaluated
+                } else {
+                    for(int j = 0; j < vars.size(); j++) { // gets variable value
+                        if(temp.equals(vars.get(j).name)) {
+                            varStack.push(vars.get(j).value + "");
+                            break;
+                        }
+                    }
+                }
+            } else if(Character.isDigit(noSpace.charAt(i))) { 
+                while(Character.isDigit(noSpace.charAt(i))) { // sets temp to value of the current number
+                    temp += noSpace.charAt(i) + "";
+                    i++;
+                    
+                    if(i == noSpace.length()) {
                         break;
                     }
                 }
-            } else if(!crnt.equals("(") && !crnt.equals(")")) { // checks if crnt is an operand and pushes into the operands stack
-                operands.push(crnt);
+
+                i--;
+                
+                varStack.push(temp);
+            } else if(noSpace.charAt(i) == '+' || noSpace.charAt(i) == '-' || noSpace.charAt(i) == '*' || noSpace.charAt(i) == '/') { // if current char is an operand push it to the operand stack
+                operands.push(noSpace.charAt(i) + "");
             }
 
-            if(!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) { // checks if the top of operands is a multiply or divide and immediately evaulates the value
+            if(!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) { // if the top of the operand stack is a multiply or divide evaulate it immediately and return the value
                 calculate(varStack, operands);
             }
         }
 
-        return reverseAndCalculate(varStack, operands); // evaluates whats left inside the varStack and operands stack
+        return Float.parseFloat(reverseAndCalculate(varStack, operands)); // evaluates whats left inside the varStack and operands stack
+    }
+
+    private static int findClosing(String expr, Character open, Character close, int i) { // finds closing parenthesis or bracket
+        int closing = 0, count = 0;
+
+        for(closing = i; closing < expr.length(); closing++) {
+            if(expr.charAt(closing) == close) {
+                count--;
+            } else if(expr.charAt(closing)== open) {
+                count++;
+            }
+
+            if(count == 0) {
+                break;
+            }
+        }
+
+        return closing;
     }
 
     private static String reverseAndCalculate(Stack<String> varStack, Stack<String> operands) { // reverses the stacks and calculates
