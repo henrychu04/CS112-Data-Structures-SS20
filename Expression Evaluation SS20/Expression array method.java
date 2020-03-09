@@ -111,100 +111,62 @@ public class Expression {
      * @return Result of evaluation
      */
     public static float 
-    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Substring method
-        String noSpace = expr.replaceAll("\\s", "");
+    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Split to array method
+        String noSpace = expr.replaceAll("\\s+","");
+        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
+        Stack<String> allStack = new Stack<String>();
+
+        for(int i = asArray.length; i > 0; i--) {
+            allStack.push(asArray[i - 1]);
+        }
+
+        String numString = recurse(allStack, vars, arrays);
+        
+        return Float.parseFloat(numString);
+    }
+
+    private static String recurse(Stack<String> allStack, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         Stack<String> varStack = new Stack<String>();
         Stack<String> operands = new Stack<String>();
-        
-        for(int i = 0; i < noSpace.length(); i++) {
-            String temp = "";
 
-            if(noSpace.charAt(i) == '(') {
-                int closed = findClosing(noSpace, '(', ')', i);
+        while(!allStack.isEmpty()) {
+            String crnt = allStack.pop();
 
-                varStack.push(evaluate(noSpace.substring(i + 1, closed), vars, arrays) + "");
+            if(crnt.contains("[")) {
+                String index = recurse(allStack, vars, arrays);
+                String arrayName = crnt.replace("[", "");
 
-                i = closed;
-            } else if(noSpace.charAt(i) == ')') {
-                return Float.parseFloat(reverseAndCalculate(varStack, operands));
-            } else if(noSpace.charAt(i) == ']') {
-                return Float.parseFloat(reverseAndCalculate(varStack,operands));
-            } else if(Character.isLetter(noSpace.charAt(i))) {
-                while(Character.isLetter(noSpace.charAt(i))) {
-                    temp += noSpace.charAt(i) + "";
-                    i++;
-
-                    if(i == noSpace.length()) {
+                for(int i = 0; i < arrays.size(); i++) {
+                    if(arrayName.equals(arrays.get(i).name)) {
+                        varStack.push(arrays.get(i).values[(int)Float.parseFloat(index)] + "");
                         break;
                     }
                 }
-
-                i--;
-                
-                if(i + 1 < noSpace.length() && noSpace.charAt(i + 1) == '[') {
-                    i++;
-
-                    int closed = findClosing(noSpace, '[', ']', i);
-
-                    int index = (int)evaluate(noSpace.substring(i + 1, closed), vars, arrays);
-
-                    for(int k = 0; k < arrays.size(); k++) {
-                        if(temp.equals(arrays.get(k).name)) {
-                            varStack.push(arrays.get(k).values[index] + "");
-                            break;
-                        }
-                    }
-
-                    i = closed;
-                } else {
-                    for(int j = 0; j < vars.size(); j++) {
-                        if(temp.equals(vars.get(j).name)) {
-                            varStack.push(vars.get(j).value + "");
-                            break;
-                        }
-                    }
-                }
-            } else if(Character.isDigit(noSpace.charAt(i))) {
-                while(Character.isDigit(noSpace.charAt(i))) {
-                    temp += noSpace.charAt(i) + "";
-                    i++;
-                    
-                    if(i == noSpace.length()) {
+            } else if(crnt.equals("]")) {
+                return reverseAndCalculate(varStack, operands);
+            } else if(crnt.equals("(")) {
+                varStack.push(recurse(allStack, vars, arrays));
+            } else if(crnt.equals(")")) {
+                return reverseAndCalculate(varStack, operands);
+            } else if(Character.isDigit(crnt.charAt(0))) {
+                varStack.push(crnt);
+            } else if(Character.isLetter(crnt.charAt(0)) && !crnt.equals("(") && !crnt.equals(")")) {
+                for(int i = 0; i < vars.size(); i++) {
+                    if(crnt.equals(vars.get(i).name)) {
+                        varStack.push(vars.get(i).value + "");
                         break;
                     }
                 }
-
-                i--;
-                
-                varStack.push(temp);
-            } else if(noSpace.charAt(i) == '+' || noSpace.charAt(i) == '-' || noSpace.charAt(i) == '*' || noSpace.charAt(i) == '/') {
-                operands.push(noSpace.charAt(i) + "");
+            } else if(!crnt.equals("(") && !crnt.equals(")")) {
+                operands.push(crnt);
             }
 
-            if(!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) {
+            if(varStack.size() != 1 && !operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) {
                 calculate(varStack, operands);
             }
         }
 
-        return Float.parseFloat(reverseAndCalculate(varStack, operands));
-    }
-
-    private static int findClosing(String expr, Character open, Character close, int i) {
-        int closing = 0, count = 0;
-
-        for(closing = i; closing < expr.length(); closing++) {
-            if(expr.charAt(closing) == close) {
-                count--;
-            } else if(expr.charAt(closing)== open) {
-                count++;
-            }
-
-            if(count == 0) {
-                break;
-            }
-        }
-
-        return closing;
+        return reverseAndCalculate(varStack, operands);
     }
 
     private static String reverseAndCalculate(Stack<String> varStack, Stack<String> operands) {
