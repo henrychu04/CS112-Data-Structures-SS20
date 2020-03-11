@@ -128,7 +128,12 @@ public class Expression {
                     output.push(operands.pop());
                 }
                 
-                while(!operands.isEmpty() && !operands.peek().equals("(") && (givePrecedence(operands.peek()) > givePrecedence(crnt))) {
+                while(!operands.isEmpty() && 
+                    ((givePrecedence(operands.peek()) > givePrecedence(crnt)) || 
+                    (givePrecedence(operands.peek()) == givePrecedence(crnt) && 
+                    (crnt.equals("-") || crnt.equals("/"))) && 
+                    !operands.peek().equals("("))) {
+                    
                     output.push(operands.pop());
                 }
 
