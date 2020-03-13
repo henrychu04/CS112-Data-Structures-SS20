@@ -112,6 +112,8 @@ public class Expression {
      */
     public static float 
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Shunting Yard Algorithm
+        // Only works with numbers and parenthesis
+
         String noSpace = expr.replaceAll("\\s+","");
         String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
         Stack<String> operands = new Stack<String>();
@@ -153,49 +155,60 @@ public class Expression {
         }
 
         Stack<String> answer = new Stack<String>();
-        Stack<String> reverseOutput = new Stack<String>();
-
-        while(!output.isEmpty()) {
-            reverseOutput.push(output.pop());
-        }
+        Stack<String> reverseOutput = reverse(output);        
 
         while(!reverseOutput.isEmpty()) {
             String crnt = reverseOutput.pop();
 
             if(crnt.equals("+") || crnt.equals("-") || crnt.equals("*") || crnt.equals("/")) {
-                Float newNum = 0.f, a, b;
-
-                switch(crnt) {
-                    case "+":
-                        a = Float.parseFloat(answer.pop());
-                        b = Float.parseFloat(answer.pop());
-                        newNum = a + b;
-                        break;
-                    case "-":
-                        a = Float.parseFloat(answer.pop());
-                        b = Float.parseFloat(answer.pop());
-                        newNum = b - a;
-                        break;
-                    case "*":
-                        a = Float.parseFloat(answer.pop());
-                        b = Float.parseFloat(answer.pop());
-                        newNum = a * b;
-                        break;
-                    case "/":
-                        a = Float.parseFloat(answer.pop());
-                        b = Float.parseFloat(answer.pop());
-                        newNum = b / a;
-                        break;
-                    default:
-                        break;
-                }
-                answer.push(newNum + "");
+                calculate(crnt, answer);
             } else {
                 answer.push(crnt);
             }
         }
         
         return Float.parseFloat(answer.peek());
+    }
+
+    private static Stack<String> reverse(Stack<String> toBeReversed) {
+        Stack<String> reversed = new Stack<String>();
+
+        while(!toBeReversed.isEmpty()) {
+            reversed.push(toBeReversed.pop());
+        }
+
+        return reversed;
+    }
+
+    private static void calculate(String operand, Stack<String> answer) {
+        Float newNum = 0.f, a, b;
+
+        switch(operand) {
+            case "+":
+                a = Float.parseFloat(answer.pop());
+                b = Float.parseFloat(answer.pop());
+                newNum = a + b;
+                break;
+            case "-":
+                a = Float.parseFloat(answer.pop());
+                b = Float.parseFloat(answer.pop());
+                newNum = b - a;
+                break;
+            case "*":
+                a = Float.parseFloat(answer.pop());
+                b = Float.parseFloat(answer.pop());
+                newNum = a * b;
+                break;
+            case "/":
+                a = Float.parseFloat(answer.pop());
+                b = Float.parseFloat(answer.pop());
+                newNum = b / a;
+                break;
+            default:
+                break;
+        }
+
+        answer.push(newNum + "");
     }
 
     private static int givePrecedence(String operand) {
