@@ -8,6 +8,18 @@ import structures.Stack;
 
 public class Expression {
 
+    enum MATCH_TYPE {
+        EQUALS_CLOSING_BRACKET,
+        EQUALS_OPENING_PARENTHESIS,
+        EQUALS_CLOSING_PARENTHESIS,
+        IS_DIGIT,
+        IS_ARRAY,
+        IS_VARIABLE,
+        IS_LETTER,
+        IS_OPERAND,
+        NO_MATCH
+	}
+
 	public static String delims = " \t*+-/()[]";
 			
     /**
@@ -112,15 +124,15 @@ public class Expression {
      */
     public static float 
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Split to array method
-        String noSpace = expr.replaceAll("\\s+",""); // removes spaces in the expression
-        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])"); // splits the expression by operands, parenthesis and closing brackets
+        String noSpace = expr.replaceAll("\\s+","");
+        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
         Stack<String> allStack = new Stack<String>();
 
-        for(int i = asArray.length; i > 0; i--) { // pushes each element in the split array into a stack
+        for(int i = asArray.length; i > 0; i--) {
             allStack.push(asArray[i - 1]);
         }
 
-        String numString = recurse(allStack, vars, arrays); // evaulates the stack
+        String numString = recurse(allStack, vars, arrays);
         
         return Float.parseFloat(numString);
     }
@@ -130,35 +142,43 @@ public class Expression {
         Stack<String> operands = new Stack<String>();
 
         while(!allStack.isEmpty()) {
-            String crnt = allStack.pop(); // sets crnt to the top of the stack
+            String crnt = allStack.pop();
 
-            if(crnt.contains("[")) { // checks if crnt is an array
-                String index = recurse(allStack, vars, arrays); // evaluates what is inside the opening and closing bracket
-                String arrayName = crnt.replace("[", ""); // removes the opening bracket so what is left if the bracket name
+            switch(checkMatch(crnt)) {
+                case IS_ARRAY:
+                    String index = recurse(allStack, vars, arrays);
+                    String arrayName = crnt.replace("[", "");
 
-                for(int i = 0; i < arrays.size(); i++) { // finds the value of the index of the array
-                    if(arrayName.equals(arrays.get(i).name)) {
-                        varStack.push(arrays.get(i).values[(int)Float.parseFloat(index)] + "");
-                        break;
+                    for(int i = 0; i < arrays.size(); i++) {
+                        if(arrayName.equals(arrays.get(i).name)) {
+                            varStack.push(arrays.get(i).values[(int)Float.parseFloat(index)] + "");
+                            break;
+                        }
                     }
-                }
-            } else if(crnt.equals("]")) { // checks if crnt is a closing bracket and evaluates and returns
-                return reverseAndCalculate(varStack, operands);
-            } else if(crnt.equals("(")) {
-                varStack.push(recurse(allStack, vars, arrays)); // checks if crnt is an opening parenthesis and evaulates what is inside
-            } else if(crnt.equals(")")) {
-                return reverseAndCalculate(varStack, operands); // checks if crnt is a closing parenthesis and evaulates and returns
-            } else if(Character.isDigit(crnt.charAt(0))) { // checks if crnt is a number and pushes into the varStack stack
-                varStack.push(crnt);
-            } else if(Character.isLetter(crnt.charAt(0)) && !crnt.equals("(") && !crnt.equals(")")) { // since crnt is already checked to see if it is an array, this checks if it is a variable and pushes the variable value into the varStack stack
-                for(int i = 0; i < vars.size(); i++) {
-                    if(crnt.equals(vars.get(i).name)) {
-                        varStack.push(vars.get(i).value + "");
-                        break;
+                    break;
+                case EQUALS_CLOSING_BRACKET:
+                    return reverseAndCalculate(varStack, operands);
+                case EQUALS_OPENING_PARENTHESIS:
+                    varStack.push(recurse(allStack, vars, arrays));
+                    break;
+                case EQUALS_CLOSING_PARENTHESIS:
+                    return reverseAndCalculate(varStack, operands); 
+                case IS_DIGIT:
+                    varStack.push(crnt);
+                    break;
+                case IS_VARIABLE:
+                    for(int i = 0; i < vars.size(); i++) {
+                        if(crnt.equals(vars.get(i).name)) {
+                            varStack.push(vars.get(i).value + "");
+                            break;
+                        }
                     }
-                }
-            } else if(!crnt.equals("(") && !crnt.equals(")")) { // checks if crnt is an operand and pushes into the operands stack
-                operands.push(crnt);
+                    break;
+                case IS_OPERAND:
+                    operands.push(crnt);
+                    break;
+                default:
+                    break;
             }
 
             if(!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) { // checks if the top of operands is a multiply or divide and immediately evaulates the value
@@ -166,10 +186,29 @@ public class Expression {
             }
         }
 
-        return reverseAndCalculate(varStack, operands); // evaluates whats left inside the varStack and operands stack
+        return reverseAndCalculate(varStack, operands);
     }
 
-    private static String reverseAndCalculate(Stack<String> varStack, Stack<String> operands) { // reverses the stacks and calculates
+    private static Expression.MATCH_TYPE checkMatch(String crnt) {
+        if(crnt.contains("[")) {
+            return Expression.MATCH_TYPE.IS_ARRAY;
+        } else if(crnt.equals("]")) {
+            return Expression.MATCH_TYPE.EQUALS_CLOSING_BRACKET;
+        } else if(crnt.equals("(")) {
+            return Expression.MATCH_TYPE.EQUALS_OPENING_PARENTHESIS;
+        } else if(crnt.equals(")")) {
+            return Expression.MATCH_TYPE.EQUALS_CLOSING_PARENTHESIS;
+        } else if(Character.isDigit(crnt.charAt(0))) {
+            return Expression.MATCH_TYPE.IS_DIGIT;
+        } else if(Character.isLetter(crnt.charAt(0)) && !crnt.equals("(") && !crnt.equals(")")) {
+            return Expression.MATCH_TYPE.IS_VARIABLE;
+        } else if(!crnt.equals("(") && !crnt.equals(")")) {
+            return Expression.MATCH_TYPE.IS_OPERAND;
+        }
+        return Expression.MATCH_TYPE.NO_MATCH;
+    }
+
+    private static String reverseAndCalculate(Stack<String> varStack, Stack<String> operands) {
         Stack<String> reversedVarStack = new Stack<String>();
         Stack<String> reversedOperands = new Stack<String>();
 
@@ -187,8 +226,8 @@ public class Expression {
         return reversedVarStack.peek();
     }
 
-    private static void calculate(Stack<String> varStack, Stack<String> operands) { // calculates
-        String newNum;
+    private static void calculate(Stack<String> varStack, Stack<String> operands) {
+        String newNum = "";
         float a, b;
 
         switch(operands.pop()) {
@@ -213,7 +252,6 @@ public class Expression {
                 newNum = a / b + "";
                 break;
             default:
-                newNum = "";
                 break;
         }
         

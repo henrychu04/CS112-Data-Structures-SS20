@@ -9,6 +9,13 @@
             "name": "CodeLens (Launch) - Evaluator",
             "request": "launch",
             "mainClass": "app.Evaluator",
+            "projectName": "Express_Eval_414f76c5"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Evaluator",
+            "request": "launch",
+            "mainClass": "app.Evaluator",
             "projectName": "Expression Evaluation SS20_2faf4a74"
         },
         {
