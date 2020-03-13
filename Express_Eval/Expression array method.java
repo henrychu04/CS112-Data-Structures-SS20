@@ -205,6 +205,7 @@ public class Expression {
         } else if(!crnt.equals("(") && !crnt.equals(")")) {
             return Expression.MATCH_TYPE.IS_OPERAND;
         }
+        
         return Expression.MATCH_TYPE.NO_MATCH;
     }
 
