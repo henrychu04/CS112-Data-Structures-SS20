@@ -181,7 +181,7 @@ public class Expression {
                     break;
             }
 
-            if(!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) { // checks if the top of operands is a multiply or divide and immediately evaulates the value
+            if(!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) {
                 calculate(varStack, operands);
             }
         }
@@ -205,7 +205,7 @@ public class Expression {
         } else if(!crnt.equals("(") && !crnt.equals(")")) {
             return Expression.MATCH_TYPE.IS_OPERAND;
         }
-        
+
         return Expression.MATCH_TYPE.NO_MATCH;
     }
 
