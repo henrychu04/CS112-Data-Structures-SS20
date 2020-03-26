@@ -252,24 +252,50 @@ public class BigInteger {
     }
 
     private static BigInteger.COMPARISON whichIsBigger(BigInteger first, BigInteger second) {
-        Float firstNum = Float.parseFloat(first.toString());
-        Float secondNum = Float.parseFloat(second.toString());
+        int firstCount = 0;
+        int secondCount = 0;
 
-        if (firstNum < 0) {
-            firstNum *= -1;
+        DigitNode firstcrnt = first.front;
+        DigitNode secondcrnt = second.front;
+
+        while (firstcrnt != null) {
+            firstCount++;
+            firstcrnt = firstcrnt.next;
         }
 
-        if (secondNum < 0) {
-            secondNum *= -1;
+        while (secondcrnt != null) {
+            secondCount++;
+            secondcrnt = secondcrnt.next;
         }
 
-        if (firstNum > secondNum) {
+        if (firstCount > secondCount) {
             return COMPARISON.FIRST_BIGGER;
-        } else if (firstNum < secondNum) {
+        } else if (firstCount < secondCount) {
             return COMPARISON.SECOND_BIGGER;
         } else {
-            return COMPARISON.EQUAL;
+            BigInteger reverseFirst = reverse(first);
+            BigInteger reverseSecond = reverse(second);
+
+            firstcrnt = reverseFirst.front;
+            secondcrnt = reverseSecond.front;
+
+            while (firstcrnt != null && secondcrnt != null) {
+                if (firstcrnt.digit > secondcrnt.digit) {
+                    return COMPARISON.FIRST_BIGGER;
+                } else if (firstcrnt.digit < secondcrnt.digit) {
+                    return COMPARISON.SECOND_BIGGER;
+                } else if (firstcrnt.digit == secondcrnt.digit) {
+                    firstcrnt = firstcrnt.next;
+                    secondcrnt = secondcrnt.next;
+                }
+            }
+
+            if (firstcrnt == null && secondcrnt == null) {
+                return COMPARISON.EQUAL;
+            }
         }
+
+        return null;
     }
     
     /**
