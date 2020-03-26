@@ -252,32 +252,16 @@ public class BigInteger {
     }
 
     private static BigInteger.COMPARISON whichIsBigger(BigInteger first, BigInteger second) {
-        int firstCount = 0;
-        int secondCount = 0;
-
-        DigitNode firstcrnt = first.front;
-        DigitNode secondcrnt = second.front;
-
-        while (firstcrnt != null) {
-            firstCount++;
-            firstcrnt = firstcrnt.next;
-        }
-
-        while (secondcrnt != null) {
-            secondCount++;
-            secondcrnt = secondcrnt.next;
-        }
-
-        if (firstCount > secondCount) {
+        if (first.numDigits > second.numDigits) {
             return COMPARISON.FIRST_BIGGER;
-        } else if (firstCount < secondCount) {
+        } else if (first.numDigits < second.numDigits) {
             return COMPARISON.SECOND_BIGGER;
         } else {
             BigInteger reverseFirst = reverse(first);
             BigInteger reverseSecond = reverse(second);
 
-            firstcrnt = reverseFirst.front;
-            secondcrnt = reverseSecond.front;
+            DigitNode firstcrnt = reverseFirst.front;
+            DigitNode secondcrnt = reverseSecond.front;
 
             while (firstcrnt != null && secondcrnt != null) {
                 if (firstcrnt.digit > secondcrnt.digit) {
@@ -310,12 +294,13 @@ public class BigInteger {
      */
     public static BigInteger multiply(BigInteger first, BigInteger second) {
         BigInteger BI = new BigInteger();
-        BigInteger tempBI = new BigInteger();
         DigitNode a = first.front;
         DigitNode b = second.front;
         int product = 0, carry = 0, countTens = 0, countTens2 = 0;
 
         while (a != null) {
+            BigInteger tempBI = new BigInteger();
+
             while (countTens != 0) {
                 addNewNode(tempBI, 0);
                 countTens--;
@@ -339,7 +324,6 @@ public class BigInteger {
             }
 
             BI = add(reverse(tempBI), BI);
-            tempBI = new BigInteger();
             
             countTens++;
             countTens2 = countTens;
@@ -367,9 +351,9 @@ public class BigInteger {
         BI.front = newDigit;
     }
 
-    private static BigInteger reverse(BigInteger integer) {
+    private static BigInteger reverse(BigInteger BI) {
         BigInteger reversedBI = new BigInteger();
-        DigitNode reverse = integer.front;
+        DigitNode reverse = BI.front;
 
         while (reverse != null) {
             DigitNode newDigit = new DigitNode(reverse.digit, reversedBI.front);
