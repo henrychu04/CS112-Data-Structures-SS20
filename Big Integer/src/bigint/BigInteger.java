@@ -214,7 +214,6 @@ public class BigInteger {
                     carry = 1;
                 } else {
                     sum = biggerDigit - smallerDigit;
-                    carry = 0;
                 }
 
                 addNewNode(BI, sum);
