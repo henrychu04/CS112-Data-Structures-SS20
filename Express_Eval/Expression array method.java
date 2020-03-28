@@ -36,36 +36,36 @@ public class Expression {
         String noSpace = expr.replaceAll("\\s+","");
         String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
 
-        for(int i = 0; i < asArray.length; i++) {
+        for (int i = 0; i < asArray.length; i++) {
             String temp = asArray[i];
 
-            if(!Character.isLetter(temp.charAt(0))) {
+            if (!Character.isLetter(temp.charAt(0))) {
                 continue;
             } else {
                 boolean noDuplicate = false;
 
-                if(temp.contains("[")) {
+                if (temp.contains("[")) {
                     temp = temp.replace("[", "");
 
-                    for(int j = 0; j < arrays.size(); j++) {
-                        if(temp.equals(arrays.get(j).name)) {
+                    for (int j = 0; j < arrays.size(); j++) {
+                        if (temp.equals(arrays.get(j).name)) {
                             noDuplicate = true;
                             break;
                         }
                     }
 
-                    if(noDuplicate == false) {
+                    if (noDuplicate == false) {
                         arrays.add(new Array(temp));
                     }
                 } else {
-                    for(int j = 0; j < vars.size(); j++) {
-                        if(temp.equals(vars.get(j).name)) {
+                    for (int j = 0; j < vars.size(); j++) {
+                        if (temp.equals(vars.get(j).name)) {
                             noDuplicate = true;
                             break;
                         }
                     }
 
-                    if(noDuplicate == false) {
+                    if (noDuplicate == false) {
                         vars.add(new Variable(temp));
                     }
                 }
@@ -126,7 +126,7 @@ public class Expression {
         String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
         Stack<String> allStack = new Stack<String>();
 
-        for(int i = asArray.length; i > 0; i--) {
+        for (int i = asArray.length; i > 0; i--) {
             allStack.push(asArray[i - 1]);
         }
 
@@ -139,16 +139,16 @@ public class Expression {
         Stack<String> varStack = new Stack<String>();
         Stack<String> operands = new Stack<String>();
 
-        while(!allStack.isEmpty()) {
+        while (!allStack.isEmpty()) {
             String crnt = allStack.pop();
 
-            switch(checkMatch(crnt)) {
+            switch (checkMatch(crnt)) {
                 case IS_ARRAY:
                     String index = recurse(allStack, vars, arrays);
                     String arrayName = crnt.replace("[", "");
 
-                    for(int i = 0; i < arrays.size(); i++) {
-                        if(arrayName.equals(arrays.get(i).name)) {
+                    for (int i = 0; i < arrays.size(); i++) {
+                        if (arrayName.equals(arrays.get(i).name)) {
                             varStack.push(arrays.get(i).values[Integer.parseInt(index)] + "");
                             break;
                         }
@@ -165,8 +165,8 @@ public class Expression {
                     varStack.push(crnt);
                     break;
                 case IS_VARIABLE:
-                    for(int i = 0; i < vars.size(); i++) {
-                        if(crnt.equals(vars.get(i).name)) {
+                    for (int i = 0; i < vars.size(); i++) {
+                        if (crnt.equals(vars.get(i).name)) {
                             varStack.push(vars.get(i).value + "");
                             break;
                         }
@@ -179,7 +179,7 @@ public class Expression {
                     break;
             }
 
-            if(!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) {
+            if (!operands.isEmpty() && operands.size() != varStack.size() && (operands.peek().equals("*") || operands.peek().equals("/"))) {
                 calculate(varStack, operands);
             }
         }
@@ -201,14 +201,14 @@ public class Expression {
         Stack<String> reversedVarStack = new Stack<String>();
         Stack<String> reversedOperands = new Stack<String>();
 
-        while(!varStack.isEmpty()) {
+        while (!varStack.isEmpty()) {
             reversedVarStack.push(varStack.pop());
         }
-        while(!operands.isEmpty()) {
+        while (!operands.isEmpty()) {
             reversedOperands.push(operands.pop());
         }
 
-        while(!reversedOperands.isEmpty()) {
+        while (!reversedOperands.isEmpty()) {
             calculate(reversedVarStack, reversedOperands);
         }
 
@@ -219,7 +219,7 @@ public class Expression {
         String newNum = "";
         float a, b;
 
-        switch(operands.pop()) {
+        switch (operands.pop()) {
             case "+":
                 a = Float.parseFloat(varStack.pop());
                 b = Float.parseFloat(varStack.pop());

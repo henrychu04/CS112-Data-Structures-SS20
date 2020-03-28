@@ -35,36 +35,36 @@ public class Expression {
         String noSpace = expr.replaceAll("\\s+","");
         String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
 
-        for(int i = 0; i < asArray.length; i++) {
+        for (int i = 0; i < asArray.length; i++) {
             String temp = asArray[i];
 
-            if(!Character.isLetter(temp.charAt(0))) {
+            if (!Character.isLetter(temp.charAt(0))) {
                 continue;
             } else {
                 boolean noDuplicate = false;
 
-                if(temp.contains("[")) {
+                if (temp.contains("[")) {
                     temp = temp.replace("[", "");
 
-                    for(int j = 0; j < arrays.size(); j++) {
-                        if(temp.equals(arrays.get(j).name)) {
+                    for (int j = 0; j < arrays.size(); j++) {
+                        if (temp.equals(arrays.get(j).name)) {
                             noDuplicate = true;
                             break;
                         }
                     }
 
-                    if(noDuplicate == false) {
+                    if (noDuplicate == false) {
                         arrays.add(new Array(temp));
                     }
                 } else {
-                    for(int j = 0; j < vars.size(); j++) {
-                        if(temp.equals(vars.get(j).name)) {
+                    for (int j = 0; j < vars.size(); j++) {
+                        if (temp.equals(vars.get(j).name)) {
                             noDuplicate = true;
                             break;
                         }
                     }
 
-                    if(noDuplicate == false) {
+                    if (noDuplicate == false) {
                         vars.add(new Variable(temp));
                     }
                 }
@@ -145,7 +145,7 @@ public class Expression {
                         temp += noSpace.charAt(i) + "";
                         i++;
     
-                        if(i == noSpace.length()) {
+                        if (i == noSpace.length()) {
                             break;
                         }
                     }
@@ -217,14 +217,14 @@ public class Expression {
     private static int findClosing(String expr, Character open, Character close, int i) {
         int closing = 0, count = 0;
 
-        for(closing = i; closing < expr.length(); closing++) {
-            if(expr.charAt(closing) == close) {
+        for (closing = i; closing < expr.length(); closing++) {
+            if (expr.charAt(closing) == close) {
                 count--;
             } else if(expr.charAt(closing)== open) {
                 count++;
             }
 
-            if(count == 0) {
+            if (count == 0) {
                 break;
             }
         }
@@ -236,14 +236,14 @@ public class Expression {
         Stack<String> reversedVarStack = new Stack<String>();
         Stack<String> reversedOperands = new Stack<String>();
 
-        while(!varStack.isEmpty()) {
+        while (!varStack.isEmpty()) {
             reversedVarStack.push(varStack.pop());
         }
-        while(!operands.isEmpty()) {
+        while (!operands.isEmpty()) {
             reversedOperands.push(operands.pop());
         }
 
-        while(!reversedOperands.isEmpty()) {
+        while (!reversedOperands.isEmpty()) {
             calculate(reversedVarStack, reversedOperands);
         }
 
@@ -254,7 +254,7 @@ public class Expression {
         String newNum;
         float a, b;
 
-        switch(operands.pop()) {
+        switch (operands.pop()) {
             case "+":
                 a = Float.parseFloat(varStack.pop());
                 b = Float.parseFloat(varStack.pop());

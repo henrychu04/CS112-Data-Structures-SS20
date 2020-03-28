@@ -35,19 +35,19 @@ public class Expression {
         String noSpace = expr.replaceAll("\\s+","");
         String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
 
-        for(int i = 0; i < asArray.length; i++) {
+        for (int i = 0; i < asArray.length; i++) {
             String temp = asArray[i];
 
-            if(!Character.isLetter(temp.charAt(0))) {
+            if (!Character.isLetter(temp.charAt(0))) {
                 continue;
             } else {
                 boolean noDuplicate = false;
 
-                if(temp.contains("[")) {
+                if (temp.contains("[")) {
                     temp = temp.replace("[", "");
 
-                    for(int j = 0; j < arrays.size(); j++) {
-                        if(temp.equals(arrays.get(j).name)) {
+                    for (int j = 0; j < arrays.size(); j++) {
+                        if (temp.equals(arrays.get(j).name)) {
                             noDuplicate = true;
                             break;
                         }
@@ -57,14 +57,14 @@ public class Expression {
                         arrays.add(new Array(temp));
                     }
                 } else {
-                    for(int j = 0; j < vars.size(); j++) {
-                        if(temp.equals(vars.get(j).name)) {
+                    for (int j = 0; j < vars.size(); j++) {
+                        if (temp.equals(vars.get(j).name)) {
                             noDuplicate = true;
                             break;
                         }
                     }
 
-                    if(noDuplicate == false) {
+                    if (noDuplicate == false) {
                         vars.add(new Variable(temp));
                     }
                 }
