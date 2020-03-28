@@ -8,6 +8,15 @@ import structures.Stack;
 
 public class Expression {
 
+    enum MATCH_TYPE {
+        IS_DIGIT,
+        IS_LETTER,
+        IS_OPERAND,
+        EQUALS_OPENING_PARENTHESIS,
+        EQUALS_CLOSING_PARENTHESIS,
+        NO_MATCH
+    }
+
 	public static String delims = " \t*+-/()[]";
 			
     /**
@@ -112,68 +121,90 @@ public class Expression {
      */
     public static float 
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Shunting Yard Algorithm
-        // Only works with numbers and parenthesis
+        // Does not work currently
 
         String noSpace = expr.replaceAll("\\s+","");
-        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
+        StringTokenizer st = new StringTokenizer(noSpace, delims, true);
         Stack<String> operands = new Stack<String>();
         Stack<String> output = new Stack<String>();
 
-        for(int i = 0; i < asArray.length; i++) {
-            String crnt = asArray[i];
+        while (st.hasMoreTokens()) {
+            String crnt = st.nextToken();
 
-            if(Character.isDigit(crnt.charAt(0))) {
-                output.push(crnt);
-            } else if(crnt.equals("+") || crnt.equals("-") || crnt.equals("*") || crnt.equals("/")) {
-                if(!operands.isEmpty() && givePrecedence(operands.peek()) == givePrecedence(crnt)) {
-                    output.push(operands.pop());
-                }
-                
-                while(!operands.isEmpty() && 
-                    ((givePrecedence(operands.peek()) > givePrecedence(crnt)) || 
-                    (givePrecedence(operands.peek()) == givePrecedence(crnt) && 
-                    (crnt.equals("-") || crnt.equals("/"))) && 
-                    !operands.peek().equals("("))) {
-                    
-                    output.push(operands.pop());
-                }
+            switch (checkMatch(crnt)) {
+                case IS_DIGIT:
+                    output.push(crnt);
+                    break;
+                case IS_LETTER:
+                    for (int j = 0; j < vars.size(); j++) {
+                        if (vars.get(j).name.equals(crnt)) {
+                            output.push(vars.get(j).value + "");
+                            break;
+                        }
+                    }
+                    break;
+                case IS_OPERAND:                    
+                    while (!operands.isEmpty() &&
+                        ((givePrecedence(operands.peek()) > givePrecedence(crnt)) || 
+                        (givePrecedence(operands.peek()) == givePrecedence(crnt) && (crnt.equals("-") || crnt.equals("/"))) && 
+                        !operands.peek().equals("("))) {
+                        
+                        output.push(operands.pop());
+                    }
 
-                operands.push(crnt);
-            } else if(crnt.equals("(")) {
-                operands.push(crnt);
-            } else if(crnt.equals(")")) {
-                while(!operands.peek().equals("(")) {
-                    output.push(operands.pop());
-                }
+                    operands.push(crnt);
+                    break;
+                case EQUALS_OPENING_PARENTHESIS:
+                    operands.push(crnt);
+                    break;
+                case EQUALS_CLOSING_PARENTHESIS:
+                    while (!operands.peek().equals("(")) {
+                        output.push(operands.pop());
+                    }
 
-                operands.pop();
+                    operands.pop();
+                    break;
+                default:
+                    break;
             }
         }
 
-        while(!operands.isEmpty()) {
+        while (!operands.isEmpty()) {
             output.push(operands.pop());
         }
 
         Stack<String> answer = new Stack<String>();
         Stack<String> reverseOutput = reverse(output);        
 
-        while(!reverseOutput.isEmpty()) {
+        while (!reverseOutput.isEmpty()) {
             String crnt = reverseOutput.pop();
 
-            if(crnt.equals("+") || crnt.equals("-") || crnt.equals("*") || crnt.equals("/")) {
-                calculate(crnt, answer);
-            } else {
-                answer.push(crnt);
+            switch (checkMatch(crnt)) {
+                case IS_OPERAND:
+                    calculate(crnt, answer);
+                    break;
+                default:
+                    answer.push(crnt);
+                    break;
             }
         }
         
         return Float.parseFloat(answer.peek());
     }
 
+    private static Expression.MATCH_TYPE checkMatch(String crnt) {
+        if (Character.isDigit(crnt.charAt(0)))                                                  return Expression.MATCH_TYPE.IS_DIGIT;
+        else if (Character.isLetter(crnt.charAt(0)))                                            return Expression.MATCH_TYPE.IS_LETTER;
+        else if (crnt.equals("+") || crnt.equals("-") || crnt.equals("*") || crnt.equals("/"))  return Expression.MATCH_TYPE.IS_OPERAND;
+        else if (crnt.equals("("))                                                              return Expression.MATCH_TYPE.EQUALS_OPENING_PARENTHESIS;
+        else if (crnt.equals(")"))                                                              return Expression.MATCH_TYPE.EQUALS_CLOSING_PARENTHESIS;
+        else                                                                                    return Expression.MATCH_TYPE.NO_MATCH;
+    }
+
     private static Stack<String> reverse(Stack<String> toBeReversed) {
         Stack<String> reversed = new Stack<String>();
 
-        while(!toBeReversed.isEmpty()) {
+        while (!toBeReversed.isEmpty()) {
             reversed.push(toBeReversed.pop());
         }
 
@@ -183,7 +214,7 @@ public class Expression {
     private static void calculate(String operand, Stack<String> answer) {
         Float newNum = 0.f, a, b;
 
-        switch(operand) {
+        switch (operand) {
             case "+":
                 a = Float.parseFloat(answer.pop());
                 b = Float.parseFloat(answer.pop());
@@ -212,7 +243,7 @@ public class Expression {
     }
 
     private static int givePrecedence(String operand) {
-        switch(operand) {
+        switch (operand) {
             case "+":
                 return 1;
             case "-":

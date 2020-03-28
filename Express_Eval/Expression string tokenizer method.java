@@ -4,21 +4,23 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
+import javafx.scene.chart.StackedBarChart;
 import structures.Stack;
 
 public class Expression {
 
     enum MATCH_TYPE {
+        EQUALS_OPENING_BRACKET,
         EQUALS_CLOSING_BRACKET,
         EQUALS_OPENING_PARENTHESIS,
         EQUALS_CLOSING_PARENTHESIS,
+        IS_LETTER,
         IS_DIGIT,
-        IS_ARRAY,
-        IS_VARIABLE,
-        IS_OPERAND
+        IS_OPERAND,
+        NO_MATCH
 	}
 
-	public static String delims = " \t*+-/()[]";
+    public static String delims = " \t*+-/()[]";
 			
     /**
      * Populates the vars list with simple variables, and arrays lists with arrays
@@ -121,56 +123,59 @@ public class Expression {
      * @return Result of evaluation
      */
     public static float 
-    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Split to array method
+    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // String Tokenizer method
         String noSpace = expr.replaceAll("\\s+","");
-        String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
-        Stack<String> allStack = new Stack<String>();
+        StringTokenizer st = new StringTokenizer(noSpace, delims, true);
 
-        for(int i = asArray.length; i > 0; i--) {
-            allStack.push(asArray[i - 1]);
-        }
+        String answer = recurse(st, vars, arrays);
 
-        String numString = recurse(allStack, vars, arrays);
-        
-        return Float.parseFloat(numString);
+        return Float.parseFloat(answer);
     }
 
-    private static String recurse(Stack<String> allStack, ArrayList<Variable> vars, ArrayList<Array> arrays) {
+    private static String recurse(StringTokenizer st, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         Stack<String> varStack = new Stack<String>();
         Stack<String> operands = new Stack<String>();
 
-        while(!allStack.isEmpty()) {
-            String crnt = allStack.pop();
+        while (st.hasMoreTokens()) {
+            String crnt = st.nextToken();
 
-            switch(checkMatch(crnt)) {
-                case IS_ARRAY:
-                    String index = recurse(allStack, vars, arrays);
-                    String arrayName = crnt.replace("[", "");
+            switch (checkMatch(crnt)) {
+                case EQUALS_CLOSING_BRACKET:
+                    return reverseAndCalculate(varStack, operands);
+                case EQUALS_OPENING_BRACKET:
+                    String arrayName = varStack.pop();
+                    String index = recurse(st, vars, arrays);
 
-                    for(int i = 0; i < arrays.size(); i++) {
-                        if(arrayName.equals(arrays.get(i).name)) {
+                    for (int i = 0; i < arrays.size(); i++) {
+                        if (arrays.get(i).name.equals(arrayName)) {
                             varStack.push(arrays.get(i).values[Integer.parseInt(index)] + "");
                             break;
                         }
                     }
                     break;
-                case EQUALS_CLOSING_BRACKET:
-                    return reverseAndCalculate(varStack, operands);
                 case EQUALS_OPENING_PARENTHESIS:
-                    varStack.push(recurse(allStack, vars, arrays));
+                    varStack.push(recurse(st, vars, arrays));
                     break;
                 case EQUALS_CLOSING_PARENTHESIS:
-                    return reverseAndCalculate(varStack, operands); 
+                    return reverseAndCalculate(varStack, operands);
                 case IS_DIGIT:
                     varStack.push(crnt);
                     break;
-                case IS_VARIABLE:
-                    for(int i = 0; i < vars.size(); i++) {
-                        if(crnt.equals(vars.get(i).name)) {
+                case IS_LETTER:
+                    boolean isVar = false;
+
+                    for (int i = 0; i < vars.size(); i++) {
+                        if (vars.get(i).name.equals(crnt)) {
+                            isVar = true;
                             varStack.push(vars.get(i).value + "");
                             break;
                         }
                     }
+
+                    if (!isVar) {
+                        varStack.push(crnt);
+                    }
+
                     break;
                 case IS_OPERAND:
                     operands.push(crnt);
@@ -188,12 +193,12 @@ public class Expression {
     }
 
     private static Expression.MATCH_TYPE checkMatch(String crnt) {
-        if (crnt.contains("["))                         return Expression.MATCH_TYPE.IS_ARRAY;
+        if (crnt.equals("["))                           return Expression.MATCH_TYPE.EQUALS_OPENING_BRACKET;
         else if (crnt.equals("]"))                      return Expression.MATCH_TYPE.EQUALS_CLOSING_BRACKET;
         else if (crnt.equals("("))                      return Expression.MATCH_TYPE.EQUALS_OPENING_PARENTHESIS;
         else if (crnt.equals(")"))                      return Expression.MATCH_TYPE.EQUALS_CLOSING_PARENTHESIS;
         else if (Character.isDigit(crnt.charAt(0)))     return Expression.MATCH_TYPE.IS_DIGIT;
-        else if (Character.isLetter(crnt.charAt(0)))    return Expression.MATCH_TYPE.IS_VARIABLE;
+        else if (Character.isLetter(crnt.charAt(0)))    return Expression.MATCH_TYPE.IS_LETTER;
         else                                            return Expression.MATCH_TYPE.IS_OPERAND;
     }
 
