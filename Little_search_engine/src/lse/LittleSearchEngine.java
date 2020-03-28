@@ -55,8 +55,6 @@ public class LittleSearchEngine {
 				} else {
 					map.put(word, new Occurrence(docFile, 1));
 				}
-			} else {
-				continue;
 			}
 		}
 
@@ -73,7 +71,17 @@ public class LittleSearchEngine {
 	 * @param kws Keywords hash table for a document
 	 */
 	public void mergeKeywords(HashMap<String,Occurrence> kws) {
-		/** COMPLETE THIS METHOD **/
+		for (Map.Entry<String, Occurrence> crnt : kws.entrySet()) {
+			if (keywordsIndex.containsKey(crnt.getKey())) {
+				ArrayList<Occurrence> crntAL = keywordsIndex.get(crnt.getKey());
+				crntAL.add(crnt.getValue());
+				insertLastOccurrence(crntAL);
+			} else {
+				ArrayList<Occurrence> newAL = new ArrayList<Occurrence>();
+				newAL.add(crnt.getValue());
+				keywordsIndex.put(crnt.getKey(), newAL);
+			}
+		}
 	}
 	
 	/**
@@ -128,7 +136,15 @@ public class LittleSearchEngine {
 			}
 		}
 
-		return finalWord.toLowerCase();
+		if (finalWord != "") {
+			finalWord = finalWord.toLowerCase();
+		} else if (noiseWords.contains(finalWord)) {
+			return null;
+		} else {
+			return null;
+		}
+
+		return finalWord;
 	}
 	
 	/**
@@ -143,11 +159,43 @@ public class LittleSearchEngine {
 	 *         your code - it is not used elsewhere in the program.
 	 */
 	public ArrayList<Integer> insertLastOccurrence(ArrayList<Occurrence> occs) {
-		/** COMPLETE THIS METHOD **/
+		ArrayList<Integer> indexes = new ArrayList<Integer>();
+
+		Occurrence toBeInserted = occs.get(occs.size() - 1);
+		occs.remove(occs.size() - 1);
+
+		int low = 0;
+		int high = occs.size() - 1;
+		int middle = 0;
+		boolean added = false;
+
+		while (low <= high) {
+			middle = (low + high) / 2;
+			indexes.add(middle);
+
+			if(occs.get(middle).frequency == toBeInserted.frequency) {
+				occs.add(middle + 1, toBeInserted);
+				added = true;
+				break;
+			} else if (occs.get(middle).frequency > toBeInserted.frequency) {
+				low = middle + 1;
+				continue;
+			} else if (occs.get(middle).frequency < toBeInserted.frequency) {
+				high = middle - 1;
+				continue;
+			}
+		}
+
+		if (!added) {
+			if (occs.get(0).frequency < toBeInserted.frequency) {
+				occs.add(0, toBeInserted);
+			} else {
+				occs.add(toBeInserted);
+			}
+			return null;
+		}
 		
-		// following line is a placeholder to make the program compile
-		// you should modify it as needed when you write your code
-		return null;
+		return indexes;
 	}
 	
 	/**
@@ -200,11 +248,48 @@ public class LittleSearchEngine {
 	 *         returns null or empty array list.
 	 */
 	public ArrayList<String> top5search(String kw1, String kw2) {
-		/** COMPLETE THIS METHOD **/
-		
-		// following line is a placeholder to make the program compile
-		// you should modify it as needed when you write your code
-		return null;
-	
+		ArrayList<Occurrence> keyword1 = new ArrayList<Occurrence>();
+		ArrayList<Occurrence> keyword2 = new ArrayList<Occurrence>();
+		ArrayList<String> finalList = new ArrayList<String>();
+
+		if (keywordsIndex.containsKey(kw1)) {
+			keyword1 = keywordsIndex.get(kw1);
+		}
+
+		if (keywordsIndex.containsKey(kw2)) {
+			keyword2 = keywordsIndex.get(kw2);
+		}
+
+		if (keyword1.size() == 0 && keyword2.size() == 0) {
+			return null;
+		} else {
+			if (keyword1.size() == 0 && keyword2.size() != 0) {
+				for (int i = 0; i < 5 && i < keyword2.size(); i++) {
+					finalList.add(keyword2.get(i).document);
+				}
+
+				return finalList;
+			} else if (keyword1.size() != 0 && keyword2.size() == 0) {
+				for (int i = 0; i < 5 && i < keyword1.size(); i++) {
+					finalList.add(keyword1.get(i).document);
+				}
+
+				return finalList;
+			}
+
+			while (keyword2.size() > 0) {
+				keyword1.add(keyword2.get(keyword2.size() - 1));
+				keyword2.remove(keyword2.size() - 1);
+				insertLastOccurrence(keyword1);
+			}
+
+			for (int i = 0; i < 5 && i < keyword1.size(); i++) {
+				if (!finalList.contains(keyword1.get(i).document)) {
+					finalList.add(keyword1.get(i).document);
+				}
+			}
+
+			return finalList;
+		}	
 	}
 }

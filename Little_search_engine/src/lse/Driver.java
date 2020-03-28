@@ -16,5 +16,11 @@ public class Driver {
         String noiseWordsFile = stdin.nextLine();
 
         lse.makeIndex(docsFile, noiseWordsFile);
+
+
+        ArrayList<String> search = lse.top5search("deep", "world");
+        for (int i = 0; i < search.size(); i++) {
+            System.out.println("contains " + search.get(i));
+        }
     }
 }
