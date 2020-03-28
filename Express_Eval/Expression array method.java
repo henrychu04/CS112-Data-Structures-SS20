@@ -15,7 +15,6 @@ public class Expression {
         IS_DIGIT,
         IS_ARRAY,
         IS_VARIABLE,
-        IS_LETTER,
         IS_OPERAND,
         NO_MATCH
 	}
