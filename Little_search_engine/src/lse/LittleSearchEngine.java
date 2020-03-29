@@ -173,7 +173,7 @@ public class LittleSearchEngine {
 			middle = (low + high) / 2;
 			indexes.add(middle);
 
-			if(occs.get(middle).frequency == toBeInserted.frequency) {
+			if (occs.get(middle).frequency == toBeInserted.frequency) {
 				occs.add(middle + 1, toBeInserted);
 				added = true;
 				break;
