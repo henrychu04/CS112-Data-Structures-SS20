@@ -121,7 +121,7 @@ public class Expression {
      * @return Result of evaluation
      */
     public static float 
-    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Split to array method
+    evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) { // Stack method
         String noSpace = expr.replaceAll("\\s+","");
         String[] asArray = noSpace.split("(?<=[-+*/()\\[\\]])|(?=[-+*/()\\]])");
         Stack<String> allStack = new Stack<String>();
