@@ -102,45 +102,47 @@ public class LittleSearchEngine {
 	 * @return Keyword (word without trailing punctuation, LOWER CASE)
 	 */
 	public String getKeyword(String word) {
-		String[] wordSplit = word.split("(?=\\P{Alpha}+)|(?<=\\P{Alpha}+)");
 		String finalWord = "";
-		boolean punctuation = true;
-		int i = 0;
+		boolean punctuation = true, endOfWord = false;
 
-		for (; i < wordSplit.length; i++) {
-			if (punctuation == true) {
-				if (!Character.isLetter(wordSplit[i].charAt(0))) {
-					if (Character.isDigit(wordSplit[i].charAt(0))) {
+		for (int i = 0; i < word.length(); i++) {
+			if (punctuation) {
+				if (!Character.isLetter(word.charAt(i))) {
+					if (Character.isDigit(word.charAt(i))) {
 						return null;
 					}
-
 					continue;
 				} else {
 					punctuation = false;
 				}
 			}
 
-			if (punctuation == false) {
-				finalWord = wordSplit[i];
-				i++;
-				break;
+			if (!punctuation && endOfWord == false) {
+				if (!Character.isLetter(word.charAt(i))) {
+					if (Character.isDigit(word.charAt(i))) {
+						return null;
+					}
+					endOfWord = true;
+				} else {
+					finalWord += Character.toLowerCase(word.charAt(i));
+				}
+			}
+
+			if (endOfWord) {
+				if (Character.isLetter(word.charAt(i))) {
+					return null;
+				} else {
+					if (Character.isDigit(word.charAt(i))) {
+						return null;
+					}
+					continue;
+				}
 			}
 		}
 
-
-		for (; i < wordSplit.length; i++) {
-			if (!Character.isLetter(wordSplit[i].charAt(0))) {
-				continue;
-			} else {
-				return null;
-			}
-		}
-
-		if (finalWord != "") {
-			finalWord = finalWord.toLowerCase();
-		} else if (noiseWords.contains(finalWord)) {
+		if (noiseWords.contains(finalWord)) {
 			return null;
-		} else {
+		} else if (finalWord == "") {
 			return null;
 		}
 
@@ -252,44 +254,33 @@ public class LittleSearchEngine {
 		ArrayList<Occurrence> keyword2 = new ArrayList<Occurrence>();
 		ArrayList<String> finalList = new ArrayList<String>();
 
-		if (keywordsIndex.containsKey(kw1)) {
+		if (keywordsIndex.containsKey(kw1) && keywordsIndex.containsKey(kw2)) {
 			keyword1 = keywordsIndex.get(kw1);
-		}
-
-		if (keywordsIndex.containsKey(kw2)) {
 			keyword2 = keywordsIndex.get(kw2);
+		} else if (!keywordsIndex.containsKey(kw1) && keywordsIndex.containsKey(kw2)) {
+			for (int i = 0; i < 5 && i < keywordsIndex.get(kw2).size(); i++) {
+				finalList.add(keywordsIndex.get(kw2).get(i).document);
+			}
+			return finalList;
+		} else if (keywordsIndex.containsKey(kw1) && !keywordsIndex.containsKey(kw2)) {
+			for (int i = 0; i < 5 && i < keywordsIndex.get(kw1).size(); i++) {
+				finalList.add(keywordsIndex.get(kw1).get(i).document);
+			}
+			return finalList;
 		}
 
-		if (keyword1.size() == 0 && keyword2.size() == 0) {
-			return null;
-		} else {
-			if (keyword1.size() == 0 && keyword2.size() != 0) {
-				for (int i = 0; i < 5 && i < keyword2.size(); i++) {
-					finalList.add(keyword2.get(i).document);
-				}
+		while (keyword2.size() > 0) {
+			keyword1.add(keyword2.get(keyword2.size() - 1));
+			keyword2.remove(keyword2.size() - 1);
+			insertLastOccurrence(keyword1);
+		}
 
-				return finalList;
-			} else if (keyword1.size() != 0 && keyword2.size() == 0) {
-				for (int i = 0; i < 5 && i < keyword1.size(); i++) {
-					finalList.add(keyword1.get(i).document);
-				}
-
-				return finalList;
+		for (int i = 0; i < 5 && i < keyword1.size(); i++) {
+			if (!finalList.contains(keyword1.get(i).document)) {
+				finalList.add(keyword1.get(i).document);
 			}
+		}
 
-			while (keyword2.size() > 0) {
-				keyword1.add(keyword2.get(keyword2.size() - 1));
-				keyword2.remove(keyword2.size() - 1);
-				insertLastOccurrence(keyword1);
-			}
-
-			for (int i = 0; i < 5 && i < keyword1.size(); i++) {
-				if (!finalList.contains(keyword1.get(i).document)) {
-					finalList.add(keyword1.get(i).document);
-				}
-			}
-
-			return finalList;
-		}	
+		return finalList;
 	}
 }
