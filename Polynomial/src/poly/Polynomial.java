@@ -59,35 +59,34 @@ public class Polynomial {
 	 *         is the front of the result polynomial
 	 */
 	public static Node add(Node poly1, Node poly2) {
-
 		Node temp = null;
 		Node a = null;
 		Node returningNode = a;
 		Node node1 = poly1;
 		Node node2 = poly2;
 
-		while(node1 != null || node2 != null) {
-			if(node1 == null) {
+		while (node1 != null || node2 != null) {
+			if (node1 == null) {
 				temp = new Node(node2.term.coeff, node2.term.degree, null);				
 				node2 = node2.next;
-			} else if(node2 == null) {
+			} else if (node2 == null) {
 				temp = new Node(node1.term.coeff, node1.term.degree, null);
 				node1 = node1.next;
-			} else if(node1.term.degree == node2.term.degree) {
+			} else if (node1.term.degree == node2.term.degree) {
 				temp = new Node(node1.term.coeff + node2.term.coeff, node1.term.degree, null);
 				node1 = node1.next;
 				node2 = node2.next;
-			} else if(node1.term.degree < node2.term.degree) {
+			} else if (node1.term.degree < node2.term.degree) {
 				temp = new Node(node1.term.coeff, node1.term.degree, null);
 				node1 = node1.next;
-			} else if(node1.term.degree > node2.term.degree) {
+			} else if (node1.term.degree > node2.term.degree) {
 				temp = new Node(node2.term.coeff, node2.term.degree, null);
 				node2 = node2.next;
 			}
 
-			if(temp.term.coeff == 0) {
+			if (temp.term.coeff == 0) {
 				continue;
-			} else if(a == null) {
+			} else if (a == null) {
 				a = temp;
 				returningNode = a;
 			} else {
@@ -110,27 +109,26 @@ public class Polynomial {
 	 *         is the front of the result polynomial
 	 */
 	public static Node multiply(Node poly1, Node poly2) {
-
-		Node nullInput = null;
-		if(poly1 == null || poly2 == null) {
-			return nullInput;
+		if (poly1 == null || poly2 == null) {
+			return null;
 		}
 
 		Node node1 = poly1;
 		Node node2 = poly2;
 		Node newNode = null;
 
-		while(node1 != null) {
-			while(node2 != null) {
+		while (node1 != null) {
+			while (node2 != null) {
 				Node createdNode = new Node(node1.term.coeff * node2.term.coeff, node1.term.degree + node2.term.degree, null);
 
-				if(newNode == null) {
+				if (newNode == null) {
 					newNode = createdNode;
 				} else {
 					newNode = add(createdNode, newNode);
 				}
 				node2 = node2.next;
 			}
+
 			node2 = poly2;
 			node1 = node1.next;
 		}
@@ -146,11 +144,10 @@ public class Polynomial {
 	 * @return Value of polynomial p at x
 	 */
 	public static float evaluate(Node poly, float x) {
-		
 		Node crnt = poly;
 		float answer = 0;
 
-		while(crnt != null) {
+		while (crnt != null) {
 			answer += crnt.term.coeff * Math.pow(x, crnt.term.degree);
 			crnt = crnt.next;
 		}
