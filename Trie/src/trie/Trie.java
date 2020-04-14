@@ -31,11 +31,11 @@ public class Trie {
 		TrieNode root = new TrieNode(null, null, null);
 		TrieNode crntNode = root;
 	
-			for(int i = 0; i < allWords.length; i++) {
+			for (int i = 0; i < allWords.length; i++) {
 				Indexes newIndex = new Indexes(i, (short)0, (short)(allWords[i].length()-1));
 				TrieNode newNode = new TrieNode(newIndex, null, null);
 
-				if(i == 0) {
+				if (i == 0) {
 					crntNode.firstChild = newNode;
 					crntNode = newNode;
 					continue;
@@ -45,7 +45,7 @@ public class Trie {
 
 				boolean ret = findPlaceToInsert(crntNode, newNode, allWords);
 			
-				if(ret == false) {
+				if (ret == false) {
 					break;
 				}
 			}
@@ -55,9 +55,9 @@ public class Trie {
 	private static boolean findPlaceToInsert(TrieNode crntNode, TrieNode newNode, String[] allWords) {
 		boolean ret = false;
 
-		switch(ifMatch(crntNode, newNode, allWords)) {
+		switch (ifMatch(crntNode, newNode, allWords)) {
 			case FULL_MATCH:
-				if(crntNode.firstChild == null) {
+				if (crntNode.firstChild == null) {
 					System.out.println("A string either fully matches a previous string or is a prefix of an existing string. Program is stopped.");
 					ret = false;
 					break;
@@ -72,21 +72,21 @@ public class Trie {
 				int count = 0;
 				int length = 0;
 
-				if(one.length() > two.length()) {
+				if (one.length() > two.length()) {
 					length = two.length();
-				} else if(two.length() >= one.length()) {
+				} else if (two.length() >= one.length()) {
 					length = one.length();
 				}
 
-				for(int i = 0; i < length - 1; i++) {
-					if(one.charAt(i) != two.charAt(i)) {
+				for (int i = 0; i < length - 1; i++) {
+					if (one.charAt(i) != two.charAt(i)) {
 						break;
 					} else {
 						count++;
 					}
 				}
 
-				if(crntNode.firstChild == null) {
+				if (crntNode.firstChild == null) {
 					Indexes newIndexes = new Indexes(crntNode.substr.wordIndex, (short)(crntNode.substr.startIndex + count), crntNode.substr.endIndex);
 					TrieNode newTrieNode = new TrieNode(newIndexes, null, newNode);
 
@@ -112,7 +112,7 @@ public class Trie {
 				}
 				break;
 			case NO_MATCH:
-				if(crntNode.sibling == null) {
+				if (crntNode.sibling == null) {
 					crntNode.sibling = newNode;
 					newNode.substr.startIndex = crntNode.substr.startIndex;
 					return true;
@@ -134,25 +134,25 @@ public class Trie {
 		int count = 0;
 		int length = 0;		
 
-		if(one.length() > two.length()) {
+		if (one.length() > two.length()) {
 			length = two.length();
-		} else if(two.length() >= one.length()) {
+		} else if (two.length() >= one.length()) {
 			length = one.length();
 		}
 
-		for(int i = 0; i < length; i++) {
-			if(one.charAt(i) != two.charAt(i)) {
+		for (int i = 0; i < length; i++) {
+			if (one.charAt(i) != two.charAt(i)) {
 				break;
 			} else {
 				count++;
 			}
 		}
 
-		if(count == 0) {
+		if (count == 0) {
 			return Trie.MATCH_TYPE.NO_MATCH;
-		} else if(count == length) {
+		} else if (count == length) {
 			return Trie.MATCH_TYPE.FULL_MATCH;
-		} else if(count < length) {
+		} else if (count < length) {
 			return Trie.MATCH_TYPE.PARTIAL_MATCH;
 		}
 		return Trie.MATCH_TYPE.NO_MATCH;
@@ -178,7 +178,7 @@ public class Trie {
 	 */
 	public static ArrayList<TrieNode> completionList(TrieNode root,
 										String[] allWords, String prefix) {
-		if(root.firstChild == null) {
+		if (root.firstChild == null) {
 			return null;
 		}
 
@@ -188,9 +188,10 @@ public class Trie {
 
 		findMatchStartingPoint(crntNode, prefix, allWords, returningArray);
 
-		if(returningArray.size() == 0) {
+		if (returningArray.size() == 0) {
 			return null;
 		}
+
 		return returningArray;
 	}
 
@@ -201,44 +202,45 @@ public class Trie {
 		int count = 0;
 		int length = 0;		
 
-		if(one.length() > two.length()) {
+		if (one.length() > two.length()) {
 			length = two.length();
-		} else if(two.length() >= one.length()) {
+		} else if (two.length() >= one.length()) {
 			length = one.length();
 		}
 
-		for(int i = 0; i < length; i++) {
-			if(one.charAt(i) != two.charAt(i)) {
+		for (int i = 0; i < length; i++) {
+			if (one.charAt(i) != two.charAt(i)) {
 				break;
 			} else {
 				count++;
 			}
 		}
 
-		if(count == 0) {
+		if (count == 0) {
 			return MATCH_TYPE.NO_MATCH;
-		} else if(count == two.length()) {
+		} else if (count == two.length()) {
 			return MATCH_TYPE.FULL_MATCH;
-		} else if(count > 0) {
+		} else if (count > 0) {
 			return MATCH_TYPE.PARTIAL_MATCH;
 		} 
+
 		return MATCH_TYPE.NO_MATCH;
 	}
 
 	private static void findMatchStartingPoint(TrieNode crntNode, String prefix, String[] allWords, ArrayList<TrieNode> prefixList) {
-		switch(matchPrefix(crntNode, prefix, allWords)) {
+		switch (matchPrefix(crntNode, prefix, allWords)) {
 			case FULL_MATCH:
 				printLeafNodes(crntNode, prefixList);
 				break;
 			case PARTIAL_MATCH:
-				if(crntNode.firstChild == null) {
+				if (crntNode.firstChild == null) {
 					break;
 				} else {
 					findMatchStartingPoint(crntNode.firstChild, prefix, allWords, prefixList);
 				}
 				break;
 			case NO_MATCH:
-				if(crntNode.sibling != null) {
+				if (crntNode.sibling != null) {
 					findMatchStartingPoint(crntNode.sibling, prefix, allWords, prefixList);
 				} else {
 					return;
@@ -251,13 +253,14 @@ public class Trie {
 	}
 
 	private static void printLeafNodes(TrieNode crntNode, ArrayList<TrieNode> leafList){
-		if(crntNode.firstChild == null) {
+		if (crntNode.firstChild == null) {
 			leafList.add(crntNode);
 		}
 		
-		for (TrieNode ptr=crntNode.firstChild; ptr != null; ptr=ptr.sibling) {
+		for (TrieNode ptr = crntNode.firstChild; ptr != null; ptr = ptr.sibling) {
 			printLeafNodes(ptr, leafList);
 		}
+
 		return;
 	}
 	
