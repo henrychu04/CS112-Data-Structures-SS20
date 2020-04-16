@@ -187,19 +187,8 @@ public class Friends {
 				numFriends++;
 			}
 
-			if (numFriends == 1) {
-				boolean canAdd = true;
-
-				for (int j = 0; j < connectors.size(); j++) {
-					if (connectors.get(j).equals(g.members[g.members[i].first.fnum].name)) {
-						canAdd = false;
-						break;
-					}
-				}
-
-				if (canAdd) {
-					connectors.add(g.members[g.members[i].first.fnum].name);
-				}
+			if (numFriends == 1 && !connectors.contains(g.members[g.members[i].first.fnum].name)) {
+				connectors.add(g.members[g.members[i].first.fnum].name);
 			}
 		}
 
