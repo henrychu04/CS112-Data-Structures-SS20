@@ -24,6 +24,9 @@ public class Driver {
         String kw2 = stdin.nextLine();
 
         ArrayList<String> search = lse.top5search(kw1, kw2);
-        System.out.println(search);
+
+        if (search.size() != 0) {
+            System.out.println("Result is " + search);
+        }
     }
 }

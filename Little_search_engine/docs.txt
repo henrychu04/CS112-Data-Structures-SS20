@@ -1,2 +1,9 @@
 AliceCh1.txt
 WowCh1.txt
+test.txt
+sample1.txt
+sample2.txt
+sample3.txt
+sample4.txt
+sample5.txt
+sample6.txt

@@ -50,7 +50,7 @@ public class LittleSearchEngine {
 			if (word != null) {
 				if (map.containsKey(word)) {
 					Occurrence newCrnt = map.get(word);
-					newCrnt.frequency += 1;
+					newCrnt.frequency++;
 					map.replace(word, newCrnt);
 				} else {
 					map.put(word, new Occurrence(docFile, 1));
@@ -58,6 +58,7 @@ public class LittleSearchEngine {
 			}
 		}
 
+		sc.close();
 		return map;
 	}
 	
@@ -74,10 +75,12 @@ public class LittleSearchEngine {
 		for (Map.Entry<String, Occurrence> crnt : kws.entrySet()) {
 			if (keywordsIndex.containsKey(crnt.getKey())) {
 				ArrayList<Occurrence> crntAL = keywordsIndex.get(crnt.getKey());
+
 				crntAL.add(crnt.getValue());
 				insertLastOccurrence(crntAL);
 			} else {
 				ArrayList<Occurrence> newAL = new ArrayList<Occurrence>();
+
 				newAL.add(crnt.getValue());
 				keywordsIndex.put(crnt.getKey(), newAL);
 			}
@@ -102,47 +105,41 @@ public class LittleSearchEngine {
 	 * @return Keyword (word without trailing punctuation, LOWER CASE)
 	 */
 	public String getKeyword(String word) {
+		String punctuation = ".,?:;!";
 		String finalWord = "";
-		boolean punctuation = true, endOfWord = false;
+		boolean startOfWord = false, endOfWord = false;
 
 		for (int i = 0; i < word.length(); i++) {
-			if (punctuation) {
-				if (!Character.isLetter(word.charAt(i))) {
-					if (Character.isDigit(word.charAt(i))) {
-						return null;
-					}
+			if (!startOfWord) {
+				if (punctuation.contains(word.charAt(i) + "")) {
 					continue;
 				} else {
-					punctuation = false;
+					startOfWord = true;
 				}
 			}
 
-			if (!punctuation && endOfWord == false) {
+			if (startOfWord && !endOfWord) {
 				if (!Character.isLetter(word.charAt(i))) {
 					if (Character.isDigit(word.charAt(i))) {
 						return null;
+					} else {
+						endOfWord = true;
 					}
-					endOfWord = true;
 				} else {
 					finalWord += Character.toLowerCase(word.charAt(i));
 				}
 			}
 
 			if (endOfWord) {
-				if (Character.isLetter(word.charAt(i))) {
+				if (!punctuation.contains(word.charAt(i) + "")) {
 					return null;
-				} else {
-					if (Character.isDigit(word.charAt(i))) {
-						return null;
-					}
-					continue;
 				}
 			}
 		}
 
 		if (noiseWords.contains(finalWord)) {
 			return null;
-		} else if (finalWord == "") {
+		} else if (finalWord.length() == 0) {
 			return null;
 		}
 
@@ -161,23 +158,23 @@ public class LittleSearchEngine {
 	 *         your code - it is not used elsewhere in the program.
 	 */
 	public ArrayList<Integer> insertLastOccurrence(ArrayList<Occurrence> occs) {
+		if (occs.size() == 1) {
+			return null;
+		}
+
 		ArrayList<Integer> indexes = new ArrayList<Integer>();
 
-		Occurrence toBeInserted = occs.get(occs.size() - 1);
-		occs.remove(occs.size() - 1);
+		Occurrence toBeInserted = occs.remove(occs.size() - 1);
 
 		int low = 0;
 		int high = occs.size() - 1;
-		int middle = 0;
-		boolean added = false;
 
 		while (low <= high) {
-			middle = (low + high) / 2;
+			int middle = (low + high) / 2;
 			indexes.add(middle);
 
 			if (occs.get(middle).frequency == toBeInserted.frequency) {
 				occs.add(middle + 1, toBeInserted);
-				added = true;
 				break;
 			} else if (occs.get(middle).frequency > toBeInserted.frequency) {
 				low = middle + 1;
@@ -188,13 +185,8 @@ public class LittleSearchEngine {
 			}
 		}
 
-		if (!added) {
-			if (occs.get(0).frequency < toBeInserted.frequency) {
-				occs.add(0, toBeInserted);
-			} else {
-				occs.add(toBeInserted);
-			}
-			return null;
+		if (high < low) {
+			occs.add(low, toBeInserted);
 		}
 		
 		return indexes;
@@ -255,30 +247,41 @@ public class LittleSearchEngine {
 		ArrayList<String> finalList = new ArrayList<String>();
 
 		if (keywordsIndex.containsKey(kw1) && keywordsIndex.containsKey(kw2)) {
+			System.out.println("Both " + "'" + kw1 + "'" + " and " + "'" + kw2 + "'" + " found\nsearching...\n");
+
 			keyword1 = keywordsIndex.get(kw1);
 			keyword2 = keywordsIndex.get(kw2);
 		} else if (!keywordsIndex.containsKey(kw1) && keywordsIndex.containsKey(kw2)) {
-			for (int i = 0; i < 5 && i < keywordsIndex.get(kw2).size(); i++) {
+			System.out.println("'" + kw1 + "'" + " not found and " + "'" + kw2 + "'" + " found\nReturning " + "'" + kw2 + "'" + " ArrayList\n");
+
+			for (int i = 0; finalList.size() < 5 && i < keywordsIndex.get(kw2).size(); i++) {
 				finalList.add(keywordsIndex.get(kw2).get(i).document);
 			}
+
 			return finalList;
 		} else if (keywordsIndex.containsKey(kw1) && !keywordsIndex.containsKey(kw2)) {
-			for (int i = 0; i < 5 && i < keywordsIndex.get(kw1).size(); i++) {
+			System.out.println("'" + kw1 + "'" + " found and " + "'" + kw2 + "'" + " not found\nReturning " + "'" + kw1 + "'" + " ArrayList\n");
+
+			for (int i = 0; finalList.size() < 5 && i < keywordsIndex.get(kw1).size(); i++) {
 				finalList.add(keywordsIndex.get(kw1).get(i).document);
 			}
+
 			return finalList;
 		}
 
 		while (keyword2.size() > 0) {
-			keyword1.add(keyword2.get(keyword2.size() - 1));
-			keyword2.remove(keyword2.size() - 1);
+			keyword1.add(keyword2.remove(keyword2.size() - 1));
 			insertLastOccurrence(keyword1);
 		}
-
-		for (int i = 0; i < 5 && i < keyword1.size(); i++) {
+	
+		for (int i = 0; finalList.size() < 5 && i < keyword1.size(); i++) {
 			if (!finalList.contains(keyword1.get(i).document)) {
 				finalList.add(keyword1.get(i).document);
 			}
+		}
+
+		if (finalList.size() == 0) {
+			System.out.println("No matches found");
 		}
 
 		return finalList;
