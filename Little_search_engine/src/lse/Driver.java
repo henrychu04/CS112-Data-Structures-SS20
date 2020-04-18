@@ -9,12 +9,42 @@ public class Driver {
     public static void main(String[] args)
     throws FileNotFoundException {
         LittleSearchEngine lse = new LittleSearchEngine();
-        System.out.print("Enter docsFile name: ");
-        String docsFile = stdin.nextLine();
+        String docsFile = "";
 
-        System.out.print("Enter noiseWordsFile name: ");
-        String noiseWordsFile = stdin.nextLine();
+        while (docsFile.length() == 0) {
+            try {
+                System.out.print("Enter docsFile name or hit return to quit: ");
+                docsFile = stdin.nextLine();
 
+                if (docsFile.length() == 0) {
+                    return;
+                }
+
+                Scanner sc = new Scanner(new File(docsFile));
+            } catch (FileNotFoundException e) {
+                docsFile = "";
+                System.out.println("File not found");
+            }
+        }
+
+        String noiseWordsFile = "";
+
+        while (noiseWordsFile.length() == 0) {
+            try {
+                System.out.print("Enter noiseWordsFile name or hit return to quit: ");
+                noiseWordsFile = stdin.nextLine();
+
+                if (noiseWordsFile.length() == 0) {
+                    return;
+                }
+
+                Scanner sc = new Scanner(new File(noiseWordsFile));
+            } catch (FileNotFoundException e) {
+                noiseWordsFile = "";
+                System.out.println("File not found");
+            }
+        }
+        
         lse.makeIndex(docsFile, noiseWordsFile);
 
         System.out.print("Enter first word to search for: ");
