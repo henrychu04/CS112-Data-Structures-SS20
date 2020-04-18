@@ -220,7 +220,7 @@ public class Expression {
         for (closing = i; closing < expr.length(); closing++) {
             if (expr.charAt(closing) == close) {
                 count--;
-            } else if(expr.charAt(closing)== open) {
+            } else if (expr.charAt(closing) == open) {
                 count++;
             }
 
@@ -239,6 +239,7 @@ public class Expression {
         while (!varStack.isEmpty()) {
             reversedVarStack.push(varStack.pop());
         }
+        
         while (!operands.isEmpty()) {
             reversedOperands.push(operands.pop());
         }

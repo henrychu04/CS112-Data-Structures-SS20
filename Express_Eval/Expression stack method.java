@@ -204,6 +204,7 @@ public class Expression {
         while (!varStack.isEmpty()) {
             reversedVarStack.push(varStack.pop());
         }
+        
         while (!operands.isEmpty()) {
             reversedOperands.push(operands.pop());
         }
