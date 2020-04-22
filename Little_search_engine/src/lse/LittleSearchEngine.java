@@ -247,9 +247,10 @@ public class LittleSearchEngine {
 		if (keywordsIndex.containsKey(kw1) && keywordsIndex.containsKey(kw2)) {
 			System.out.println("Both " + "'" + kw1 + "'" + " and " + "'" + kw2 + "'" + " found\nsearching...\n");
 
-			ArrayList<Occurrence> all = keywordsIndex.get(kw1);
+			ArrayList<Occurrence> all = new ArrayList<Occurrence>();
+			all.addAll(keywordsIndex.get(kw1));
 			all.addAll(keywordsIndex.get(kw2));
-
+			
 			while (finalList.size() < 5 && all.size() != 0) {
 				int max = -1;
 

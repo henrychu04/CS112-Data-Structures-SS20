@@ -47,16 +47,29 @@ public class Driver {
         
         lse.makeIndex(docsFile, noiseWordsFile);
 
-        System.out.print("Enter first word to search for: ");
-        String kw1 = stdin.nextLine();
+        String kw1 = "", kw2 = "";
 
-        System.out.print("Enter second word to search for: ");
-        String kw2 = stdin.nextLine();
+        while (true) {
+            System.out.print("Enter first word to search for: ");
+            kw1 = stdin.nextLine();
 
-        ArrayList<String> search = lse.top5search(kw1, kw2);
+            if (kw1.length() == 0) {
+                break;
+            }
 
-        if (search.size() != 0) {
-            System.out.println("Result is " + search);
+            System.out.print("Enter second word to search for: ");
+            kw2 = stdin.nextLine();
+
+            if (kw2.length() == 0) {
+                break;
+            }
+
+            ArrayList<String> search = lse.top5search(kw1, kw2);
+
+            if (search.size() != 0) {
+                System.out.println("Result is " + search);
+            }
         }
+        
     }
 }
