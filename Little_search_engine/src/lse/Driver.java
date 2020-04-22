@@ -50,14 +50,14 @@ public class Driver {
         String kw1 = "", kw2 = "";
 
         while (true) {
-            System.out.print("Enter first word to search for: ");
+            System.out.print("Enter first word to search for or hit return to quit: ");
             kw1 = stdin.nextLine();
 
             if (kw1.length() == 0) {
                 break;
             }
 
-            System.out.print("Enter second word to search for: ");
+            System.out.print("Enter second word to search for or hit return to quit: ");
             kw2 = stdin.nextLine();
 
             if (kw2.length() == 0) {
