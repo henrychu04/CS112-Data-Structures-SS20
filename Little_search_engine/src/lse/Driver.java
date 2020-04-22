@@ -54,14 +54,14 @@ public class Driver {
             kw1 = stdin.nextLine();
 
             if (kw1.length() == 0) {
-                break;
+                return;
             }
 
             System.out.print("Enter second word to search for or hit return to quit: ");
             kw2 = stdin.nextLine();
 
             if (kw2.length() == 0) {
-                break;
+                return;
             }
 
             ArrayList<String> search = lse.top5search(kw1, kw2);
