@@ -176,10 +176,6 @@ public class Friends {
 	 */
 	public static ArrayList<String> connectors(Graph g) {
         ArrayList<String> connectors = new ArrayList<String>();
-        
-        if (g.members.length < 3) {
-            return connectors;
-        }
 
 		for (int i = 0; i < g.members.length; i++) {
 			int numFriends = 0;
@@ -188,8 +184,18 @@ public class Friends {
 				numFriends++;
 			}
 
-			if (numFriends == 1 && !connectors.contains(g.members[g.members[i].first.fnum].name)) {
-				connectors.add(g.members[g.members[i].first.fnum].name);
+			if (numFriends == 1) {
+                int firstNumFriends = 0;
+
+                for (Friend frd = g.members[g.members[i].first.fnum].first; frd != null; frd = frd.next) {
+                    firstNumFriends++;
+                }
+
+                if (firstNumFriends == 1 && g.members[g.members[g.members[i].first.fnum].first.fnum].name.equals(g.members[i].name)) {
+                    continue;
+                } else if (!connectors.contains(g.members[g.members[i].first.fnum].name)) {
+                    connectors.add(g.members[g.members[i].first.fnum].name);
+                }
 			}
 		}
 
