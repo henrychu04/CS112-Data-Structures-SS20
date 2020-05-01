@@ -175,10 +175,11 @@ public class Friends {
 	 * @return Names of all connectors. Null or empty array list if there are no connectors.
 	 */
 	public static ArrayList<String> connectors(Graph g) {
-		// If you found this on Github congrats. The following is a way to do this method without implementing
-		// any graph search algorithms.
-
-		ArrayList<String> connectors = new ArrayList<String>();
+        ArrayList<String> connectors = new ArrayList<String>();
+        
+        if (g.members.length < 3) {
+            return connectors;
+        }
 
 		for (int i = 0; i < g.members.length; i++) {
 			int numFriends = 0;
