@@ -1,4 +1,4 @@
-package app;
+package src.app;
 
 /**
  * This class holds a (name, integer value) pair for a simple (non-array) variable. 

@@ -6,8 +6,8 @@ import java.util.*;
 public class Driver {
 
     static Scanner stdin = new Scanner(System.in);
-    public static void main(String[] args)
-    throws FileNotFoundException {
+
+    public static void main(String[] args) throws FileNotFoundException {
         LittleSearchEngine lse = new LittleSearchEngine();
         String docsFile = "";
 
@@ -44,7 +44,7 @@ public class Driver {
                 System.out.println("File not found");
             }
         }
-        
+
         lse.makeIndex(docsFile, noiseWordsFile);
 
         String kw1 = "", kw2 = "";
@@ -70,6 +70,6 @@ public class Driver {
                 System.out.println("Result is " + search);
             }
         }
-        
+
     }
 }

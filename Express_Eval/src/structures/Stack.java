@@ -1,4 +1,4 @@
-package structures;
+package src.structures;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;

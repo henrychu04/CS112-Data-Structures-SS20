@@ -9,11 +9,9 @@ public class App {
 
     static Scanner stdin = new Scanner(System.in);
 
-    public static void main(String[] args)
-    throws IOException {
-
+    public static void main(String[] args) throws IOException {
         Graph g = null;
-        
+
         while (g == null) {
             try {
                 System.out.print("Enter text file: ");
@@ -27,7 +25,7 @@ public class App {
 
         while (true) {
             String input = "";
-            
+
             System.out.print("Enter 1 for Shortest Path, 2 for Clique, 3 for Connectors, or hit return to quit: ");
 
             while (true) {
@@ -46,7 +44,7 @@ public class App {
                 break;
             } else {
                 int inputInt = Integer.parseInt(input);
-            
+
                 switch (inputInt) {
                     case 1:
                         System.out.println("\t -- Shortest Path --");
@@ -58,13 +56,13 @@ public class App {
 
                             System.out.print("Enter person one: ");
                             p1 = stdin.nextLine();
-                    
+
                             System.out.print("Enter person two: ");
                             p2 = stdin.nextLine();
-                    
+
                             personList = Friends.shortestChain(g, p1, p2);
                         }
-                
+
                         System.out.print("personList: ");
 
                         for (int i = 0; i < personList.size(); i++) {

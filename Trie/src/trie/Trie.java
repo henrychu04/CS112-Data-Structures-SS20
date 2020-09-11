@@ -3,7 +3,7 @@ package trie;
 import java.util.ArrayList;
 
 /**
- * This class implements a Trie. 
+ * This class implements a Trie.
  * 
  * @author Sesh Venugopal
  *
@@ -11,18 +11,17 @@ import java.util.ArrayList;
 public class Trie {
 
 	enum MATCH_TYPE {
-		FULL_MATCH,
-		PARTIAL_MATCH,
-		NO_MATCH
+		FULL_MATCH, PARTIAL_MATCH, NO_MATCH
 	}
-	
+
 	// prevent instantiation
-	private Trie() { }
-	
+	private Trie() {
+	}
+
 	/**
-	 * Builds a trie by inserting all words in the input array, one at a time,
-	 * in sequence FROM FIRST TO LAST. (The sequence is IMPORTANT!)
-	 * The words in the input array are all lower case.
+	 * Builds a trie by inserting all words in the input array, one at a time, in
+	 * sequence FROM FIRST TO LAST. (The sequence is IMPORTANT!) The words in the
+	 * input array are all lower case.
 	 * 
 	 * @param allWords Input array of words (lowercase) to be inserted.
 	 * @return Root of trie with all words inserted from the input array
@@ -30,25 +29,25 @@ public class Trie {
 	public static TrieNode buildTrie(String[] allWords) {
 		TrieNode root = new TrieNode(null, null, null);
 		TrieNode crntNode = root;
-	
-			for (int i = 0; i < allWords.length; i++) {
-				Indexes newIndex = new Indexes(i, (short)0, (short)(allWords[i].length()-1));
-				TrieNode newNode = new TrieNode(newIndex, null, null);
 
-				if (i == 0) {
-					crntNode.firstChild = newNode;
-					crntNode = newNode;
-					continue;
-				}
+		for (int i = 0; i < allWords.length; i++) {
+			Indexes newIndex = new Indexes(i, (short) 0, (short) (allWords[i].length() - 1));
+			TrieNode newNode = new TrieNode(newIndex, null, null);
 
-				crntNode = root.firstChild;
-
-				boolean ret = findPlaceToInsert(crntNode, newNode, allWords);
-			
-				if (ret == false) {
-					break;
-				}
+			if (i == 0) {
+				crntNode.firstChild = newNode;
+				crntNode = newNode;
+				continue;
 			}
+
+			crntNode = root.firstChild;
+
+			boolean ret = findPlaceToInsert(crntNode, newNode, allWords);
+
+			if (ret == false) {
+				break;
+			}
+		}
 		return root;
 	}
 
@@ -58,7 +57,8 @@ public class Trie {
 		switch (ifMatch(crntNode, newNode, allWords)) {
 			case FULL_MATCH:
 				if (crntNode.firstChild == null) {
-					System.out.println("A string either fully matches a previous string or is a prefix of an existing string. Program is stopped.");
+					System.out.println(
+							"A string either fully matches a previous string or is a prefix of an existing string. Program is stopped.");
 					ret = false;
 					break;
 				}
@@ -66,8 +66,10 @@ public class Trie {
 				ret = findPlaceToInsert(crntNode.firstChild, newNode, allWords);
 				break;
 			case PARTIAL_MATCH:
-				String one = allWords[crntNode.substr.wordIndex].substring(crntNode.substr.startIndex, crntNode.substr.endIndex + 1);
-				String two = allWords[newNode.substr.wordIndex].substring(crntNode.substr.startIndex, newNode.substr.endIndex + 1);
+				String one = allWords[crntNode.substr.wordIndex].substring(crntNode.substr.startIndex,
+						crntNode.substr.endIndex + 1);
+				String two = allWords[newNode.substr.wordIndex].substring(crntNode.substr.startIndex,
+						newNode.substr.endIndex + 1);
 
 				int count = 0;
 				int length = 0;
@@ -87,26 +89,28 @@ public class Trie {
 				}
 
 				if (crntNode.firstChild == null) {
-					Indexes newIndexes = new Indexes(crntNode.substr.wordIndex, (short)(crntNode.substr.startIndex + count), crntNode.substr.endIndex);
+					Indexes newIndexes = new Indexes(crntNode.substr.wordIndex,
+							(short) (crntNode.substr.startIndex + count), crntNode.substr.endIndex);
 					TrieNode newTrieNode = new TrieNode(newIndexes, null, newNode);
 
 					int newTrieNode_length = newTrieNode.substr.endIndex - newTrieNode.substr.startIndex + 1;
 
-					newNode.substr.startIndex = (short)(crntNode.substr.startIndex + count);
-					crntNode.substr.endIndex -= (short)(newTrieNode_length);
+					newNode.substr.startIndex = (short) (crntNode.substr.startIndex + count);
+					crntNode.substr.endIndex -= (short) (newTrieNode_length);
 
 					crntNode.firstChild = newTrieNode;
 					ret = true;
 				} else {
-					Indexes newIndexes = new Indexes(crntNode.substr.wordIndex, (short)(count), crntNode.substr.endIndex);
+					Indexes newIndexes = new Indexes(crntNode.substr.wordIndex, (short) (count),
+							crntNode.substr.endIndex);
 					TrieNode newTrieNode = new TrieNode(newIndexes, crntNode.firstChild, null);
 
 					int newTrieNode_length = newTrieNode.substr.endIndex - newTrieNode.substr.startIndex + 1;
 
 					crntNode.firstChild = newTrieNode;
-					newNode.substr.startIndex = (short)(count);
+					newNode.substr.startIndex = (short) (count);
 					newTrieNode.sibling = newNode;
-					crntNode.substr.endIndex -= (short)(newTrieNode_length);
+					crntNode.substr.endIndex -= (short) (newTrieNode_length);
 
 					ret = true;
 				}
@@ -132,7 +136,7 @@ public class Trie {
 		String two = allWords[root2.substr.wordIndex].substring(root1.substr.startIndex, root2.substr.endIndex + 1);
 
 		int count = 0;
-		int length = 0;		
+		int length = 0;
 
 		if (one.length() > two.length()) {
 			length = two.length();
@@ -159,25 +163,25 @@ public class Trie {
 	}
 
 	/**
-	 * Given a trie, returns the "completion list" for a prefix, i.e. all the leaf nodes in the 
-	 * trie whose words start with this prefix. 
-	 * For instance, if the trie had the words "bear", "bull", "stock", and "bell",
-	 * the completion list for prefix "b" would be the leaf nodes that hold "bear", "bull", and "bell"; 
-	 * for prefix "be", the completion would be the leaf nodes that hold "bear" and "bell", 
-	 * and for prefix "bell", completion would be the leaf node that holds "bell". 
-	 * (The last example shows that an input prefix can be an entire word.) 
-	 * The order of returned leaf nodes DOES NOT MATTER. So, for prefix "be",
-	 * the returned list of leaf nodes can be either hold [bear,bell] or [bell,bear].
+	 * Given a trie, returns the "completion list" for a prefix, i.e. all the leaf
+	 * nodes in the trie whose words start with this prefix. For instance, if the
+	 * trie had the words "bear", "bull", "stock", and "bell", the completion list
+	 * for prefix "b" would be the leaf nodes that hold "bear", "bull", and "bell";
+	 * for prefix "be", the completion would be the leaf nodes that hold "bear" and
+	 * "bell", and for prefix "bell", completion would be the leaf node that holds
+	 * "bell". (The last example shows that an input prefix can be an entire word.)
+	 * The order of returned leaf nodes DOES NOT MATTER. So, for prefix "be", the
+	 * returned list of leaf nodes can be either hold [bear,bell] or [bell,bear].
 	 *
-	 * @param root Root of Trie that stores all words to search on for completion lists
+	 * @param root     Root of Trie that stores all words to search on for
+	 *                 completion lists
 	 * @param allWords Array of words that have been inserted into the trie
-	 * @param prefix Prefix to be completed with words in trie
-	 * @return List of all leaf nodes in trie that hold words that start with the prefix, 
-	 * 			order of leaf nodes does not matter.
-	 *         If there is no word in the tree that has this prefix, null is returned.
+	 * @param prefix   Prefix to be completed with words in trie
+	 * @return List of all leaf nodes in trie that hold words that start with the
+	 *         prefix, order of leaf nodes does not matter. If there is no word in
+	 *         the tree that has this prefix, null is returned.
 	 */
-	public static ArrayList<TrieNode> completionList(TrieNode root,
-										String[] allWords, String prefix) {
+	public static ArrayList<TrieNode> completionList(TrieNode root, String[] allWords, String prefix) {
 		if (root.firstChild == null) {
 			return null;
 		}
@@ -196,11 +200,12 @@ public class Trie {
 	}
 
 	private static Trie.MATCH_TYPE matchPrefix(TrieNode crntNode, String prefix, String[] allWords) {
-		String one = allWords[crntNode.substr.wordIndex].substring(crntNode.substr.startIndex, crntNode.substr.endIndex + 1);
+		String one = allWords[crntNode.substr.wordIndex].substring(crntNode.substr.startIndex,
+				crntNode.substr.endIndex + 1);
 		String two = prefix.substring(crntNode.substr.startIndex);
 
 		int count = 0;
-		int length = 0;		
+		int length = 0;
 
 		if (one.length() > two.length()) {
 			length = two.length();
@@ -222,12 +227,13 @@ public class Trie {
 			return MATCH_TYPE.FULL_MATCH;
 		} else if (count > 0) {
 			return MATCH_TYPE.PARTIAL_MATCH;
-		} 
+		}
 
 		return MATCH_TYPE.NO_MATCH;
 	}
 
-	private static void findMatchStartingPoint(TrieNode crntNode, String prefix, String[] allWords, ArrayList<TrieNode> prefixList) {
+	private static void findMatchStartingPoint(TrieNode crntNode, String prefix, String[] allWords,
+			ArrayList<TrieNode> prefixList) {
 		switch (matchPrefix(crntNode, prefix, allWords)) {
 			case FULL_MATCH:
 				printLeafNodes(crntNode, prefixList);
@@ -252,38 +258,37 @@ public class Trie {
 		return;
 	}
 
-	private static void printLeafNodes(TrieNode crntNode, ArrayList<TrieNode> leafList){
+	private static void printLeafNodes(TrieNode crntNode, ArrayList<TrieNode> leafList) {
 		if (crntNode.firstChild == null) {
 			leafList.add(crntNode);
 		}
-		
+
 		for (TrieNode ptr = crntNode.firstChild; ptr != null; ptr = ptr.sibling) {
 			printLeafNodes(ptr, leafList);
 		}
 
 		return;
 	}
-	
+
 	public static void print(TrieNode root, String[] allWords) {
 		System.out.println("\nTRIE\n");
 		print(root, 1, allWords);
 	}
-	
+
 	private static void print(TrieNode root, int indent, String[] words) {
 		if (root == null) {
 			return;
 		}
-		for (int i=0; i < indent-1; i++) {
+		for (int i = 0; i < indent - 1; i++) {
 			System.out.print("    ");
 		}
-		
+
 		if (root.substr != null) {
-			String pre = words[root.substr.wordIndex]
-							.substring(0, root.substr.endIndex+1);
+			String pre = words[root.substr.wordIndex].substring(0, root.substr.endIndex + 1);
 			System.out.println("      " + pre);
 		}
-		
-		for (int i=0; i < indent-1; i++) {
+
+		for (int i = 0; i < indent - 1; i++) {
 			System.out.print("    ");
 		}
 		System.out.print(" ---");
@@ -292,13 +297,13 @@ public class Trie {
 		} else {
 			System.out.println(root.substr);
 		}
-		
-		for (TrieNode ptr=root.firstChild; ptr != null; ptr=ptr.sibling) {
-			for (int i=0; i < indent-1; i++) {
+
+		for (TrieNode ptr = root.firstChild; ptr != null; ptr = ptr.sibling) {
+			for (int i = 0; i < indent - 1; i++) {
 				System.out.print("    ");
 			}
 			System.out.println("     |");
-			print(ptr, indent+1, words);
+			print(ptr, indent + 1, words);
 		}
 	}
- }
+}

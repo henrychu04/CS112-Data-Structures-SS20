@@ -10,35 +10,39 @@ import java.util.Scanner;
  *
  */
 public class Polynomial {
-	
+
 	/**
-	 * Reads a polynomial from an input stream (file or keyboard). The storage format
-	 * of the polynomial is:
+	 * Reads a polynomial from an input stream (file or keyboard). The storage
+	 * format of the polynomial is:
+	 * 
 	 * <pre>
 	 *     <coeff> <degree>
 	 *     <coeff> <degree>
 	 *     ...
 	 *     <coeff> <degree>
 	 * </pre>
+	 * 
 	 * with the guarantee that degrees will be in descending order. For example:
+	 * 
 	 * <pre>
 	 *      4 5
 	 *     -2 3
 	 *      2 1
 	 *      3 0
 	 * </pre>
+	 * 
 	 * which represents the polynomial:
+	 * 
 	 * <pre>
-	 *      4*x^5 - 2*x^3 + 2*x + 3 
+	 * 4 * x ^ 5 - 2 * x ^ 3 + 2 * x + 3
 	 * </pre>
 	 * 
 	 * @param sc Scanner from which a polynomial is to be read
 	 * @throws IOException If there is any input error in reading the polynomial
-	 * @return The polynomial linked list (front node) constructed from coefficients and
-	 *         degrees read from scanner
+	 * @return The polynomial linked list (front node) constructed from coefficients
+	 *         and degrees read from scanner
 	 */
-	public static Node read(Scanner sc) 
-	throws IOException {
+	public static Node read(Scanner sc) throws IOException {
 		Node poly = null;
 		while (sc.hasNextLine()) {
 			Scanner scLine = new Scanner(sc.nextLine());
@@ -47,16 +51,16 @@ public class Polynomial {
 		}
 		return poly;
 	}
-	
+
 	/**
-	 * Returns the sum of two polynomials - DOES NOT change either of the input polynomials.
-	 * The returned polynomial MUST have all new nodes. In other words, none of the nodes
-	 * of the input polynomials can be in the result.
+	 * Returns the sum of two polynomials - DOES NOT change either of the input
+	 * polynomials. The returned polynomial MUST have all new nodes. In other words,
+	 * none of the nodes of the input polynomials can be in the result.
 	 * 
 	 * @param poly1 First input polynomial (front of polynomial linked list)
 	 * @param poly2 Second input polynomial (front of polynomial linked list
-	 * @return A new polynomial which is the sum of the input polynomials - the returned node
-	 *         is the front of the result polynomial
+	 * @return A new polynomial which is the sum of the input polynomials - the
+	 *         returned node is the front of the result polynomial
 	 */
 	public static Node add(Node poly1, Node poly2) {
 		Node temp = null;
@@ -67,7 +71,7 @@ public class Polynomial {
 
 		while (node1 != null || node2 != null) {
 			if (node1 == null) {
-				temp = new Node(node2.term.coeff, node2.term.degree, null);				
+				temp = new Node(node2.term.coeff, node2.term.degree, null);
 				node2 = node2.next;
 			} else if (node2 == null) {
 				temp = new Node(node1.term.coeff, node1.term.degree, null);
@@ -97,16 +101,16 @@ public class Polynomial {
 
 		return returningNode;
 	}
-	
+
 	/**
-	 * Returns the product of two polynomials - DOES NOT change either of the input polynomials.
-	 * The returned polynomial MUST have all new nodes. In other words, none of the nodes
-	 * of the input polynomials can be in the result.
+	 * Returns the product of two polynomials - DOES NOT change either of the input
+	 * polynomials. The returned polynomial MUST have all new nodes. In other words,
+	 * none of the nodes of the input polynomials can be in the result.
 	 * 
 	 * @param poly1 First input polynomial (front of polynomial linked list)
 	 * @param poly2 Second input polynomial (front of polynomial linked list)
-	 * @return A new polynomial which is the product of the input polynomials - the returned node
-	 *         is the front of the result polynomial
+	 * @return A new polynomial which is the product of the input polynomials - the
+	 *         returned node is the front of the result polynomial
 	 */
 	public static Node multiply(Node poly1, Node poly2) {
 		if (poly1 == null || poly2 == null) {
@@ -119,7 +123,8 @@ public class Polynomial {
 
 		while (node1 != null) {
 			while (node2 != null) {
-				Node createdNode = new Node(node1.term.coeff * node2.term.coeff, node1.term.degree + node2.term.degree, null);
+				Node createdNode = new Node(node1.term.coeff * node2.term.coeff, node1.term.degree + node2.term.degree,
+						null);
 
 				if (newNode == null) {
 					newNode = createdNode;
@@ -135,12 +140,12 @@ public class Polynomial {
 
 		return newNode;
 	}
-		
+
 	/**
 	 * Evaluates a polynomial at a given value.
 	 * 
 	 * @param poly Polynomial (front of linked list) to be evaluated
-	 * @param x Value at which evaluation is to be done
+	 * @param x    Value at which evaluation is to be done
 	 * @return Value of polynomial p at x
 	 */
 	public static float evaluate(Node poly, float x) {
@@ -154,7 +159,7 @@ public class Polynomial {
 
 		return answer;
 	}
-	
+
 	/**
 	 * Returns string representation of a polynomial
 	 * 
@@ -164,13 +169,12 @@ public class Polynomial {
 	public static String toString(Node poly) {
 		if (poly == null) {
 			return "0";
-		} 
-		
+		}
+
 		String retval = poly.term.toString();
-		for (Node current = poly.next ; current != null ;
-		current = current.next) {
+		for (Node current = poly.next; current != null; current = current.next) {
 			retval = current.term.toString() + " + " + retval;
 		}
 		return retval;
-	}	
+	}
 }
